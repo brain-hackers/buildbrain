@@ -1,0 +1,6 @@
+[submodule "u-boot-brain"]
+	path = u-boot-brain
+	url = git@github.com:puhitaku/u-boot-brain.git
+[submodule "linux-brain"]
+	path = linux-brain
+	url = git@github.com:puhitaku/linux-brain.git
