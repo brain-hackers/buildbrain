@@ -1,0 +1,38 @@
+[log]
+  time = true
+
+[[job]]
+  name = "U-Boot"
+  path = './u-boot-brain'
+
+  type = "make"
+  directory = "u-boot-brain"
+  target = "u-boot.sb"
+
+  when = "modified"
+  glob = [
+    './u-boot-brain/*.c',
+    './u-boot-brain/*.h',
+    './u-boot-brain/*.dts',
+    './u-boot-brain/*config',
+  ]
+
+  environment.ARCH = "arm"
+  environment.CROSS_COMPILE = "arm-linux-gnueabi-"
+
+[[job]]
+  name = "Linux"
+  path = "./linux-brain"
+
+  type = "make"
+  target = "lbuild"
+
+  when = "modified"
+  regex = [
+    './linux-brain/.+\.[ch]$',
+    './linux-brain/.+\.dts$',
+  ]
+
+  environment.ARCH = "arm"
+  environment.CROSS_COMPILE = "arm-linux-gnueabi-"
+
