@@ -1,3 +1,5 @@
+JOBS=$(shell grep -c '^processor' /proc/cpuinfo)
+
 export ARCH=arm
 export CROSS_COMPILE=arm-linux-gnueabi-
 
@@ -27,7 +29,7 @@ umenuconfig:
 
 .PHONY:
 ubuild:
-	make -j12 -C ./u-boot-brain u-boot.sb
+	make -j$(JOBS) -C ./u-boot-brain u-boot.sb
 
 .PHONY:
 ldefconfig:
@@ -44,7 +46,7 @@ lsavedefconfig:
 
 .PHONY:
 lbuild:
-	make -C ./linux-brain -j12
+	make -j$(JOBS) -C ./linux-brain
 
 .PHONY:
 uuu:
