@@ -11,6 +11,12 @@ This repository includes:
 Getting Started
 ---------------
 
+1. Install dependencies.
+
+    ```
+    $ sudo apt install build-essential libncurses5-dev gcc-arm-linux-gnueabi
+    ```
+
 1. Clone this repository with recursive clone enabled.
 
     ```
@@ -23,12 +29,12 @@ Getting Started
     $ git submodule update --init --recursive
     ```
 
-2. Then run `make setup` to prepare an build environment. Namely;
+1. Then run `make setup` to prepare an build environment. Namely;
 
     - Python 3 venv in `env`
     - r3build command in the env
 
-3. Install uuu.
+1. Install uuu.
 
     - Follow [the instruction](https://github.com/NXPmicro/mfgtools#linux) and build `uuu` executable.
     - Put `uuu` where the PATH executable points to.
