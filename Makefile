@@ -24,6 +24,10 @@ udefconfig:
 	make -C ./u-boot-brain mx28evk_defconfig
 
 .PHONY:
+usavedefconfig:
+	make -C ./u-boot-brain savedefconfig
+
+.PHONY:
 umenuconfig:
 	make -C ./u-boot-brain menuconfig
 
