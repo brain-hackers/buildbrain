@@ -60,9 +60,9 @@ Build and make NK.bin
 
 2. Run `make ubuild` to build whole repository and generate `u-boot.bin`.
 
-    - nkbin_maker packs `u-boot.bin` into `nk.bin`.
-
 3. To make `nk.bin`, run `make nkbin`.
+
+    - nkbin_maker packs `u-boot.bin` into `nk.bin`.
 
 
 Build Linux
