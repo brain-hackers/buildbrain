@@ -7,10 +7,14 @@ export CROSS_COMPILE=arm-linux-gnueabi-
 setup:
 	@echo "Updating submodules"
 	@git submodule update --init --recursive
+
+.PHONY:
+setup-dev:
 	@echo "Creating venv"
 	@python3 -m venv env
 	@echo "Installing r3build"
 	@. ./env/bin/activate; \
+	pip install wheel; \
 	pip install r3build
 
 .PHONY:

@@ -8,6 +8,12 @@ This repository includes:
  - r3build.toml to watch changes that occur in submodules
 
 
+Confirmed environments
+----------------------
+
+- Debian 10 (buster) amd64
+
+
 Getting Started
 ---------------
 
@@ -28,11 +34,6 @@ Getting Started
     ```
     $ git submodule update --init --recursive
     ```
-
-1. Then run `make setup` to prepare an build environment. Namely;
-
-    - Python 3 venv in `env`
-    - r3build command in the env
 
 1. Install uuu.
 
@@ -64,6 +65,11 @@ Build Linux
 
 Watch changes in submodules & auto-build
 ----------------------------------------
+
+1. Run `make setup-dev` to prepare a Python venv to watch code changes. Namely;
+
+    - Python 3 venv in `env`
+    - r3build command in the env
 
 1. Run `r3build`. It'll detect the changes you make and builds the corresponding executable automatically.
 
