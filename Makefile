@@ -61,8 +61,11 @@ uuu:
 	sudo uuu ./u-boot-brain/u-boot.sb
 
 .PHONY:
-nkbin:
+nkbin-maker:
 	make -C ./nkbin_maker
+
+.PHONY:
+nk.bin:
 	./nkbin_maker/bsd-ce ./u-boot-brain/u-boot.bin
 
 debian:
@@ -71,4 +74,3 @@ debian:
 	sudo cp /usr/bin/qemu-arm-static debian/usr/bin/
 	sudo cp setup_debian.sh debian/
 	sudo chroot debian /setup_debian.sh
-
