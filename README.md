@@ -3,7 +3,7 @@ buildbrain
 
 This repository includes:
 
- - linux-brain and u-boot-brain as submodules
+ - linux-brain, u-boot-brain and nkbin_maker as submodules
  - Useful build targets in Makefile
  - r3build.toml to watch changes that occur in submodules
 
@@ -51,6 +51,18 @@ Build and inject U-Boot
     - i.MX283 loads a packed U-Boot executable called `u-boot.sb`.
 
 3. To inject the executable into i.MX283 in recovery mode, run `make uuu`.
+
+
+Build and make NK.bin
+-----------------------
+
+1. Run `make udefconfig` to generate `.config`.
+
+2. Run `make ubuild` to build whole repository and generate `u-boot.bin`.
+
+    - nkbin_maker packs `u-boot.bin` into `nk.bin`.
+
+3. To make `nk.bin`, run `make nkbin`.
 
 
 Build Linux

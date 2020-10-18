@@ -60,6 +60,11 @@ lbuild:
 uuu:
 	sudo uuu ./u-boot-brain/u-boot.sb
 
+.PHONY:
+nkbin:
+	make -C ./nkbin_maker
+	./nkbin_maker/bsd-ce ./u-boot-brain/u-boot.bin
+
 debian:
 	mkdir debian
 	sudo debootstrap --arch=armel --foreign buster debian/
