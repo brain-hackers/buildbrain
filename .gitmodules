@@ -4,3 +4,6 @@
 [submodule "linux-brain"]
 	path = linux-brain
 	url = https://github.com/brain-hackers/linux-brain
+[submodule "nkbin_maker"]
+	path = nkbin_maker
+	url = https://github.com/brain-hackers/nkbin_maker.git
