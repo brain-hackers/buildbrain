@@ -25,7 +25,7 @@ watch:
 
 .PHONY:
 udefconfig:
-	make -C ./u-boot-brain mx28evk_defconfig
+	make -C ./u-boot-brain pwsh1_defconfig
 
 .PHONY:
 usavedefconfig:
@@ -34,6 +34,10 @@ usavedefconfig:
 .PHONY:
 umenuconfig:
 	make -C ./u-boot-brain menuconfig
+
+.PHONY:
+uclean:
+	make -C ./u-boot-brain distclean
 
 .PHONY:
 ubuild:
