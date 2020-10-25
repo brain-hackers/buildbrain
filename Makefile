@@ -36,6 +36,10 @@ umenuconfig:
 	make -C ./u-boot-brain menuconfig
 
 .PHONY:
+uclean:
+	make -C ./u-boot-brain distclean
+
+.PHONY:
 ubuild:
 	make -j$(JOBS) -C ./u-boot-brain u-boot.sb
 
