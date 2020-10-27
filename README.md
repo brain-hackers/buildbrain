@@ -86,7 +86,7 @@ Bootstrap Debian 10 (buster)
 1. Build and copy the Linux kernel.
 
     - Run `make ldefconfig lbuild`.
-    - Copy `/linux-brain/arch/arm/boot/zImage` and `/linux-brain/arch/arm/boot/imx28-evk.dtb` into the 1st partition.
+    - Copy `/linux-brain/arch/arm/boot/zImage` and `/linux-brain/arch/arm/boot/dts/imx28-evk.dtb` into the 1st partition.
 
 1. Run APT cache in background (mandatory): `make aptcache`.
 
