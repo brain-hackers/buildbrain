@@ -73,6 +73,10 @@ nk.bin:
 	./nkbin_maker/bsd-ce ./u-boot-brain/u-boot.bin
 
 debian:
+	@if [ "$(shell uname)" != "Linux" ]; then \
+		echo "Debootstrap is only available in Linux!"; \
+		exit 1; \
+	fi
 	mkdir debian
 	sudo debootstrap --arch=armel --foreign buster debian/
 	sudo cp /usr/bin/qemu-arm-static debian/usr/bin/
