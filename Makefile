@@ -76,5 +76,5 @@ debian:
 	mkdir debian
 	sudo debootstrap --arch=armel --foreign buster debian/
 	sudo cp /usr/bin/qemu-arm-static debian/usr/bin/
-	sudo cp setup_debian.sh debian/
+	sudo cp ./tools/setup_debian.sh debian/
 	sudo chroot debian /setup_debian.sh
