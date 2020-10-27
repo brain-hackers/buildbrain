@@ -73,8 +73,18 @@ nk.bin:
 	./nkbin_maker/bsd-ce ./u-boot-brain/u-boot.bin
 
 debian:
+	@if [ "$(shell uname)" != "Linux" ]; then \
+		echo "Debootstrap is only available in Linux!"; \
+		exit 1; \
+	fi
 	mkdir debian
-	sudo debootstrap --arch=armel --foreign buster debian/
+	sudo debootstrap --arch=armel --foreign buster debian/ http://localhost:65432/debian/
 	sudo cp /usr/bin/qemu-arm-static debian/usr/bin/
-	sudo cp setup_debian.sh debian/
+	sudo cp ./tools/setup_debian.sh debian/
 	sudo chroot debian /setup_debian.sh
+
+.PHONY:
+aptcache:
+	./tools/aptcache_linux_amd64 \
+		-rule 'local=localhost:65432, remote=ftp.jaist.ac.jp' \
+		-rule 'local=localhost:65433, remote=security.debian.org'
