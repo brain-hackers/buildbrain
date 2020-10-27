@@ -75,6 +75,24 @@ Build Linux
 1. Confirm that `linux-brain/arch/arm/boot/zImage` exists.
 
 
+Bootstrap Debian Buster
+-----------------------
+
+1. Partition an SD card into two partitions
+
+    - 1st: FAT32 (vfat), about 100MB
+    - 2st: ext4, fill remaining capacity
+
+1. Run APT cache in background: `make aptcache`
+
+1. Run `make debian`
+
+1. Copy all contents in `./debian` into the 2nd partition in the card.
+
+    - `sudo cp -ar ./debian/* /path/to/your/sd/2nd/partition/`
+    - Please make sure that all attributes are preserved with `-a` flag
+
+
 Watch changes in submodules & auto-build
 ----------------------------------------
 

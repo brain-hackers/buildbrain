@@ -1,2 +1,4 @@
 env
 debian
+cache/*
+!cache/.gitkeep
