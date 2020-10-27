@@ -4,13 +4,14 @@ TIMEZONE="Asia/Tokyo"
 
 /debootstrap/debootstrap --second-stage
 
+# Use local APT cache during debootstrap
 cat <<EOF > /etc/apt/sources.list
-deb http://ftp.jaist.ac.jp/debian buster main contrib non-free
-deb-src http://ftp.jaist.ac.jp/debian buster main contrib non-free
-deb http://ftp.jaist.ac.jp/debian buster-updates main contrib non-free
-deb-src http://ftp.jaist.ac.jp/debian buster-updates main contrib non-free
-deb http://security.debian.org/debian-security buster/updates main contrib non-free
-deb-src http://security.debian.org/debian-security buster/updates main contrib non-free
+deb http://localhost:65432/debian buster main contrib non-free
+deb-src http://localhost:65432/debian buster main contrib non-free
+deb http://localhost:65432/debian buster-updates main contrib non-free
+deb-src http://localhost:65432/debian buster-updates main contrib non-free
+deb http://localhost:65433/debian-security buster/updates main contrib non-free
+deb-src http://localhost:65433/debian-security buster/updates main contrib non-free
 EOF
 
 cat <<EOF > /etc/apt/apt.conf.d/90-norecommend
@@ -48,4 +49,14 @@ DEBIAN_FRONTEND=noninteractive \
                    dbus udev build-essential flex bison pkg-config autotools-dev libtool autoconf automake \
                    python3 python3-dev python3-setuptools python3-wheel python3-pip python3-smbus \
                    resolvconf net-tools ssh openssh-client avahi-daemon
+
+# Get wild
+cat <<EOF > /etc/apt/sources.list
+deb http://ftp.jaist.ac.jp/debian buster main contrib non-free
+deb-src http://ftp.jaist.ac.jp/debian buster main contrib non-free
+deb http://ftp.jaist.ac.jp/debian buster-updates main contrib non-free
+deb-src http://ftp.jaist.ac.jp/debian buster-updates main contrib non-free
+deb http://security.debian.org/debian-security buster/updates main contrib non-free
+deb-src http://security.debian.org/debian-security buster/updates main contrib non-free
+EOF
 
