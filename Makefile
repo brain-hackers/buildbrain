@@ -28,6 +28,10 @@ udefconfig:
 	make -C ./u-boot-brain pwsh1_defconfig
 
 .PHONY:
+udefconfig-%:
+	make -C ./u-boot-brain pw$*_defconfig
+
+.PHONY:
 usavedefconfig:
 	make -C ./u-boot-brain savedefconfig
 

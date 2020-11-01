@@ -44,7 +44,10 @@ Getting Started
 Build and inject U-Boot
 -----------------------
 
-1. Run `make udefconfig` to generate `.config`.
+1. Run `make udefconfig-sh*` to generate `.config`.
+
+    - For Sx1: `make udefconfig-sh1`
+    - For Sx6: `make udefconfig-sh6`
 
 2. Run `make ubuild` to build whole repository and generate `u-boot.sb`.
 
