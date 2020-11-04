@@ -1,0 +1,29 @@
+name: Build
+
+on:
+  push:
+    branches: master
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - name: Install deps
+      run: sudo apt install build-essential bison flex libncurses5-dev gcc-arm-linux-gnueabi qemu-user-static
+
+    - name: Build nkbin-maker
+      run: make nkbin-maker
+    - name: Configure for U-Boot
+      run: make udefconfig
+    - name: Build U-Boot
+      run: make ubuild
+    - name: Generate NK.bin
+      run: make nk.bin
+
+    - name: Configure for Linux
+      run: make ldefconfig
+    - name: Build Linux
+      run: make lbuild
