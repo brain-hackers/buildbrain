@@ -32,5 +32,7 @@ jobs:
 
     - name: Build Debian Root
       run: |
-        make aptcache &
+        ./tools/aptcache_linux_amd64 \
+          -rule 'local=localhost:65432, remote=ftp.us.debian.org' \
+          -rule 'local=localhost:65433, remote=security.debian.org' &
         make debian
