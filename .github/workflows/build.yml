@@ -14,7 +14,7 @@ jobs:
     - name: Workaround for apt update failure
       run: sudo rm /etc/apt/sources.list.d/github_git-lfs.*
     - name: Install deps
-      run: sudo apt update && sudo apt install build-essential bison flex libncurses5-dev gcc-arm-linux-gnueabi qemu-user-static
+      run: sudo apt update && sudo apt install build-essential bison flex libncurses5-dev gcc-arm-linux-gnueabi qemu-user-static debootstrap
 
     - name: Build nkbin-maker
       run: make nkbin-maker
