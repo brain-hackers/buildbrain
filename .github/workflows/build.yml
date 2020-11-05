@@ -30,9 +30,41 @@ jobs:
     - name: Build Linux
       run: make lbuild
 
-    - name: Build Debian Root
+    # - name: Build Debian Root # Wait for buildroot
+    #   run: |
+    #     ./tools/aptcache_linux_amd64 \
+    #       -rule 'local=localhost:65432, remote=ftp.us.debian.org' \
+    #       -rule 'local=localhost:65433, remote=security.debian.org' &
+    #     make debian
+    - name: Setup releases
+      id: release_name
       run: |
-        ./tools/aptcache_linux_amd64 \
-          -rule 'local=localhost:65432, remote=ftp.us.debian.org' \
-          -rule 'local=localhost:65433, remote=security.debian.org' &
-        make debian
+        mkdir release
+        cp ./u-boot-brain/u-boot.bin release/u-boot.bin
+        cp ./u-boot-brain/u-boot.sb release/u-boot.sb
+        cp ./nk.bin release/nk.bin
+        cp ./linux-brain/arch/arm/boot/dts/imx28-evk.dtb release/imx28-evk.dtb
+        cp ./linux-brain/arch/arm/boot/zImage release/zImage
+        zip -r release.zip release/
+        echo "::set-output name=name::`date "+%Y%m%d-%H"`"
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.release_name.outputs.name }}
+        release_name: ${{ steps.release_name.outputs.name }}
+        body: |
+          Build ${{ steps.release_name.outputs.name }}
+        draft: false
+        prerelease: true
+    - name: Upload release.zip
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: release.zip
+        asset_name: release.zip
+        asset_content_type: application/zip
