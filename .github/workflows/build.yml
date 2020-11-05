@@ -27,3 +27,8 @@ jobs:
       run: make ldefconfig
     - name: Build Linux
       run: make lbuild
+
+    - name: Build Debian Root
+      run: |
+        make aptcache &
+        make debian
