@@ -5,8 +5,40 @@ on:
     branches: master
 
 jobs:
+  create_release:
+    name: Create release
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+      - name: Generate release name
+        id: release_name
+        run: echo "::set-output name=name::`date "+%Y%m%d-%H"`"
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.release_name.outputs.name }}
+          release_name: ${{ steps.release_name.outputs.name }}
+          body: |
+            Build ${{ steps.release_name.outputs.name }}
+          draft: false
+          prerelease: true
+
   build:
     runs-on: ubuntu-20.04
+    needs: [create_release]
+    strategy:
+      matrix:
+        hardware:
+          - sh1
+          - sh2
+          - sh3
+          - sh4
+          - sh5
+          - sh6
     steps:
     - uses: actions/checkout@v2
       with:
@@ -19,7 +51,7 @@ jobs:
     - name: Build nkbin-maker
       run: make nkbin-maker
     - name: Configure for U-Boot
-      run: make udefconfig
+      run: make udefconfig-${{ matrix.hardware }}
     - name: Build U-Boot
       run: make ubuild
     - name: Generate NK.bin
@@ -46,25 +78,12 @@ jobs:
         cp ./linux-brain/arch/arm/boot/dts/imx28-evk.dtb release/imx28-evk.dtb
         cp ./linux-brain/arch/arm/boot/zImage release/zImage
         zip -r release.zip release/
-        echo "::set-output name=name::`date "+%Y%m%d-%H"`"
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ steps.release_name.outputs.name }}
-        release_name: ${{ steps.release_name.outputs.name }}
-        body: |
-          Build ${{ steps.release_name.outputs.name }}
-        draft: false
-        prerelease: true
     - name: Upload release.zip
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        upload_url: ${{ needs.create_release.outputs.upload_url }}
         asset_path: release.zip
-        asset_name: release.zip
+        asset_name: ${{ matrix.hardware }}-release.zip
         asset_content_type: application/zip
