@@ -85,7 +85,7 @@ debian:
 		echo "Debootstrap is only available in Linux!"; \
 		exit 1; \
 	fi
-	mkdir debian
+	mkdir -p debian
 	sudo debootstrap --arch=armel --foreign buster debian/ http://localhost:65432/debian/
 	sudo cp /usr/bin/qemu-arm-static debian/usr/bin/
 	sudo cp ./tools/setup_debian.sh debian/
