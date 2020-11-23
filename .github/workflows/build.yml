@@ -3,7 +3,7 @@ name: Build
 on:
   push:
     branches: ci*
-    tags: *
+    tags: '*'
 
 jobs:
   create_release:
