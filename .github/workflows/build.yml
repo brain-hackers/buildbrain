@@ -39,51 +39,51 @@ jobs:
           - sh4
           - sh5
           - sh6
+
     steps:
-    - uses: actions/checkout@v2
-      with:
-        submodules: true
-    - name: Workaround for apt update failure
-      run: sudo rm /etc/apt/sources.list.d/github_git-lfs.*
-    - name: Install deps
-      run: sudo apt update && sudo apt install build-essential bison flex libncurses5-dev gcc-arm-linux-gnueabi qemu-user-static debootstrap
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Workaround for apt update failure
+        run: sudo rm /etc/apt/sources.list.d/github_git-lfs.*
+      - name: Install deps
+        run: sudo apt update && sudo apt install build-essential bison flex libncurses5-dev gcc-arm-linux-gnueabi qemu-user-static debootstrap
+      - name: Build nkbin-maker
+        run: make nkbin-maker
+      - name: Configure for U-Boot
+        run: make udefconfig-${{ matrix.hardware }}
+      - name: Build U-Boot
+        run: make ubuild
+      - name: Generate NK.bin
+        run: make nk.bin
+      - name: Configure for Linux
+        run: make ldefconfig
+      - name: Build Linux
+        run: make lbuild
 
-    - name: Build nkbin-maker
-      run: make nkbin-maker
-    - name: Configure for U-Boot
-      run: make udefconfig-${{ matrix.hardware }}
-    - name: Build U-Boot
-      run: make ubuild
-    - name: Generate NK.bin
-      run: make nk.bin
+      # - name: Build Debian Root # Wait for buildroot
+      #   run: |
+      #     ./tools/aptcache_linux_amd64 \
+      #       -rule 'local=localhost:65432, remote=ftp.us.debian.org' \
+      #       -rule 'local=localhost:65433, remote=security.debian.org' &
+      #     make debian
 
-    - name: Configure for Linux
-      run: make ldefconfig
-    - name: Build Linux
-      run: make lbuild
-
-    # - name: Build Debian Root # Wait for buildroot
-    #   run: |
-    #     ./tools/aptcache_linux_amd64 \
-    #       -rule 'local=localhost:65432, remote=ftp.us.debian.org' \
-    #       -rule 'local=localhost:65433, remote=security.debian.org' &
-    #     make debian
-    - name: Setup releases
-      id: release_name
-      run: |
-        mkdir release
-        cp ./u-boot-brain/u-boot.bin release/u-boot.bin
-        cp ./u-boot-brain/u-boot.sb release/u-boot.sb
-        cp ./nk.bin release/nk.bin
-        cp ./linux-brain/arch/arm/boot/dts/imx28-evk.dtb release/imx28-evk.dtb
-        cp ./linux-brain/arch/arm/boot/zImage release/zImage
-        zip -r release.zip release/
-    - name: Upload release.zip
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ needs.create_release.outputs.upload_url }}
-        asset_path: release.zip
-        asset_name: ${{ matrix.hardware }}-release.zip
-        asset_content_type: application/zip
+      - name: Setup releases
+        id: release_name
+        run: |
+          mkdir release
+          cp ./u-boot-brain/u-boot.bin release/u-boot.bin
+          cp ./u-boot-brain/u-boot.sb release/u-boot.sb
+          cp ./nk.bin release/nk.bin
+          cp ./linux-brain/arch/arm/boot/dts/imx28-evk.dtb release/imx28-evk.dtb
+          cp ./linux-brain/arch/arm/boot/zImage release/zImage
+          zip -r release.zip release/
+      - name: Upload release.zip
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create_release.outputs.upload_url }}
+          asset_path: release.zip
+          asset_name: ${{ matrix.hardware }}-release.zip
+          asset_content_type: application/zip
