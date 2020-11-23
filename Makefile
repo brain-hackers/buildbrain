@@ -49,7 +49,7 @@ ubuild:
 
 .PHONY:
 ldefconfig:
-	make -C ./linux-brain mxs_defconfig
+	make -C ./linux-brain brain_defconfig
 
 .PHONY:
 lmenuconfig:
@@ -58,7 +58,11 @@ lmenuconfig:
 .PHONY:
 lsavedefconfig:
 	make -C ./linux-brain savedefconfig
-	cp ./linux-brain/defconfig ./linux-brain/arch/arm/configs/mxs_defconfig
+	mv ./linux-brain/defconfig ./linux-brain/arch/arm/configs/brain_defconfig
+
+.PHONY:
+lclean:
+	make -C ./linux-brain distclean
 
 .PHONY:
 lbuild:
