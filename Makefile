@@ -61,6 +61,10 @@ lsavedefconfig:
 	mv ./linux-brain/defconfig ./linux-brain/arch/arm/configs/brain_defconfig
 
 .PHONY:
+lclean:
+	make -C ./linux-brain distclean
+
+.PHONY:
 lbuild:
 	make -j$(JOBS) -C ./linux-brain
 
