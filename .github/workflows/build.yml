@@ -13,7 +13,7 @@ jobs:
     steps:
       - name: Generate release name
         id: release_name
-        run: echo "::set-output name=name::`date "+%Y%m%d-%H"`"
+        run: echo "::set-output name=name::`date "+%Y-%m-%d-%H%M%S"`"
       - name: Create release
         id: create_release
         uses: actions/create-release@v1
