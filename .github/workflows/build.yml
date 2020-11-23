@@ -32,13 +32,19 @@ jobs:
     needs: [create_release]
     strategy:
       matrix:
-        hardware:
-          - sh1
-          - sh2
-          - sh3
-          - sh4
-          - sh5
-          - sh6
+        include:
+          - model: sh1
+            nk: edsa1exe.bin
+          - model: sh2
+            nk: edsa2exe.bin
+          - model: sh3
+            nk: edsa3exe.bin
+          - model: sh4
+            nk: edsh4exe.bin
+          - model: sh5
+            nk: edsh5exe.bin
+          - model: sh6
+            nk: edsh6exe.bin
 
     steps:
       - uses: actions/checkout@v2
@@ -51,7 +57,7 @@ jobs:
       - name: Build nkbin-maker
         run: make nkbin-maker
       - name: Configure for U-Boot
-        run: make udefconfig-${{ matrix.hardware }}
+        run: make udefconfig-${{ matrix.model }}
       - name: Build U-Boot
         run: make ubuild
       - name: Generate NK.bin
@@ -74,8 +80,8 @@ jobs:
           mkdir release
           cp ./u-boot-brain/u-boot.bin release/u-boot.bin
           cp ./u-boot-brain/u-boot.sb release/u-boot.sb
-          cp ./nk.bin release/nk.bin
-          cp ./linux-brain/arch/arm/boot/dts/imx28-evk.dtb release/imx28-evk.dtb
+          cp ./nk.bin release/${{ matrix.nk }}
+          cp ./linux-brain/arch/arm/boot/dts/imx28-pw${{ matrix.model }}.dtb release/imx28-pw${{ matrix.model }}.dtb
           cp ./linux-brain/arch/arm/boot/zImage release/zImage
           zip -r release.zip release/
       - name: Upload release.zip
@@ -85,5 +91,5 @@ jobs:
         with:
           upload_url: ${{ needs.create_release.outputs.upload_url }}
           asset_path: release.zip
-          asset_name: ${{ matrix.hardware }}-release.zip
+          asset_name: ${{ matrix.model }}-boot.zip
           asset_content_type: application/zip
