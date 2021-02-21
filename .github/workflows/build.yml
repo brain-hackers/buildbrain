@@ -29,7 +29,42 @@ jobs:
           draft: false
           prerelease: true
 
-  build:
+  build-linux:
+    runs-on: ubuntu-20.04
+    needs: [create_release]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Workaround for apt update failure
+        run: sudo rm /etc/apt/sources.list.d/github_git-lfs.*
+      - name: Install deps
+        run: sudo apt update && sudo apt install build-essential bison flex libncurses5-dev gcc-arm-linux-gnueabi qemu-user-static debootstrap
+      - name: Configure for Linux
+        run: make ldefconfig
+      - name: Build Linux
+        run: make lbuild
+      - name: Setup releases
+        id: release_name
+        run: |
+          mkdir release
+          cp ./linux-brain/arch/arm/boot/dts/imx28-pwsh*.dtb release/
+          cp ./linux-brain/arch/arm/boot/zImage release/zImage
+          zip -r release.zip release/
+      - name: Generate archive name
+        id: archive_name
+        run: echo ::set-output name=name::linux-${GITHUB_REF/refs\/*s\//}
+      - name: Upload release.zip
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create_release.outputs.upload_url }}
+          asset_path: release.zip
+          asset_name: ${{ steps.archive_name.outputs.name }}.zip
+          asset_content_type: application/zip
+
+  build-uboot:
     runs-on: ubuntu-20.04
     needs: [create_release]
     strategy:
@@ -64,18 +99,6 @@ jobs:
         run: make ubuild
       - name: Generate NK.bin
         run: make nk.bin
-      - name: Configure for Linux
-        run: make ldefconfig
-      - name: Build Linux
-        run: make lbuild
-
-      # - name: Build Debian Root # Wait for buildroot
-      #   run: |
-      #     ./tools/aptcache_linux_amd64 \
-      #       -rule 'local=localhost:65432, remote=ftp.us.debian.org' \
-      #       -rule 'local=localhost:65433, remote=security.debian.org' &
-      #     make debian
-
       - name: Setup releases
         id: release_name
         run: |
@@ -83,9 +106,10 @@ jobs:
           cp ./u-boot-brain/u-boot.bin release/u-boot.bin
           cp ./u-boot-brain/u-boot.sb release/u-boot.sb
           cp ./nk.bin release/${{ matrix.nk }}
-          cp ./linux-brain/arch/arm/boot/dts/imx28-pw${{ matrix.model }}.dtb release/imx28-pw${{ matrix.model }}.dtb
-          cp ./linux-brain/arch/arm/boot/zImage release/zImage
           zip -r release.zip release/
+      - name: Generate archive name
+        id: archive_name
+        run: echo ::set-output name=name::uboot-${{ matrix.model }}-${GITHUB_REF/refs\/*s\//}
       - name: Upload release.zip
         uses: actions/upload-release-asset@v1
         env:
@@ -93,5 +117,42 @@ jobs:
         with:
           upload_url: ${{ needs.create_release.outputs.upload_url }}
           asset_path: release.zip
-          asset_name: ${{ matrix.model }}-boot.zip
+          asset_name: ${{ steps.archive_name.outputs.name }}.zip
           asset_content_type: application/zip
+
+  build-sd:
+    runs-on: ubuntu-20.04
+    needs: [create_release]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Workaround for apt update failure
+        run: sudo rm /etc/apt/sources.list.d/github_git-lfs.*
+      - name: Install deps
+        run: sudo apt update && sudo apt install kpartx build-essential bison flex libncurses5-dev gcc-arm-linux-gnueabi qemu-user-static debootstrap
+      - name: Configure for Linux
+        run: make ldefconfig
+      - name: Build Linux
+        run: make lbuild
+      - name: Build Debian Root
+        run: make brainux
+      - name: Build bsd-ce
+        run: make -C nkbin_maker bsd-ce
+      - name: Generate image name
+        id: image_name
+        run: echo ::set-output name=name::sdimage-${GITHUB_REF/refs\/*s\//}
+      - name: Build SD image
+        run: make image/sd.img && mv image/sd.img ${{ steps.image_name.outputs.name }}.img
+      - name: Compress
+        run: zip ${{ steps.image_name.outputs.name }}.zip ${{ steps.image_name.outputs.name }}.img
+      - name: Upload the image
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create_release.outputs.upload_url }}
+          asset_path: ${{ steps.image_name.outputs.name }}.zip
+          asset_name: ${{ steps.image_name.outputs.name }}.zip
+          asset_content_type: application/zip
+

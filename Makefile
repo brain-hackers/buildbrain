@@ -80,16 +80,30 @@ nkbin-maker:
 nk.bin:
 	./nkbin_maker/bsd-ce ./u-boot-brain/u-boot.bin
 
-debian:
+brainux:
 	@if [ "$(shell uname)" != "Linux" ]; then \
 		echo "Debootstrap is only available in Linux!"; \
 		exit 1; \
 	fi
-	mkdir -p debian
-	sudo debootstrap --arch=armel --foreign buster debian/ http://localhost:65432/debian/
-	sudo cp /usr/bin/qemu-arm-static debian/usr/bin/
-	sudo cp ./tools/setup_debian.sh debian/
-	sudo chroot debian /setup_debian.sh
+	mkdir -p brainux
+	@if [ "$(CI)" = "true" ]; then \
+		echo "I'm in CI and debootstrap without cache."; \
+		sudo debootstrap --arch=armel --foreign buster brainux/; \
+	else \
+		sudo debootstrap --arch=armel --foreign buster brainux/ http://localhost:65432/debian/; \
+	fi
+	sudo cp /usr/bin/qemu-arm-static brainux/usr/bin/
+	sudo cp ./os-brainux/setup_brainux.sh brainux/
+	sudo -E chroot brainux /setup_brainux.sh
+	sudo rm brainux/setup_brainux.sh
+	sudo ./os-brainux/override.sh ./os-brainux/override ./brainux
+
+image/sd.img: clean_work
+	./image/build_image.sh
+
+.PHONY:
+clean_work:
+	sudo rm -rf image/work
 
 .PHONY:
 aptcache:

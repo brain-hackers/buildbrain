@@ -4,14 +4,21 @@ TIMEZONE="Asia/Tokyo"
 
 /debootstrap/debootstrap --second-stage
 
-# Use local APT cache during debootstrap
+if [ "${CI}" == "true" ]; then
+	REPO=deb.debian.org
+	REPO_SECURITY=deb.debian.org
+else
+	REPO=localhost:65432
+	REPO_SECURITY=localhost:65433
+fi
+
 cat <<EOF > /etc/apt/sources.list
-deb http://localhost:65432/debian buster main contrib non-free
-deb-src http://localhost:65432/debian buster main contrib non-free
-deb http://localhost:65432/debian buster-updates main contrib non-free
-deb-src http://localhost:65432/debian buster-updates main contrib non-free
-deb http://localhost:65433/debian-security buster/updates main contrib non-free
-deb-src http://localhost:65433/debian-security buster/updates main contrib non-free
+deb http://${REPO}/debian buster main contrib non-free
+deb-src http://${REPO}/debian buster main contrib non-free
+deb http://${REPO}/debian buster-updates main contrib non-free
+deb-src http://${REPO}/debian buster-updates main contrib non-free
+deb http://${REPO_SECURITY}/debian-security buster/updates main contrib non-free
+deb-src http://${REPO_SECURITY}/debian-security buster/updates main contrib non-free
 EOF
 
 cat <<EOF > /etc/apt/apt.conf.d/90-norecommend
@@ -44,6 +51,7 @@ DEBIAN_FRONTEND=noninteractive \
                    xserver-xorg xserver-xorg-video-fbdev xserver-xorg-dev xorg-dev x11-apps \
                    openbox obconf obmenu \
                    weston xwayland \
+                   alsa-utils \
                    bash tmux vim htop \
                    midori pcmanfm lxterminal xterm gnome-terminal fonts-noto-cjk \
                    dbus udev build-essential flex bison pkg-config autotools-dev libtool autoconf automake \
@@ -52,11 +60,11 @@ DEBIAN_FRONTEND=noninteractive \
 
 # Get wild
 cat <<EOF > /etc/apt/sources.list
-deb http://ftp.jaist.ac.jp/debian buster main contrib non-free
-deb-src http://ftp.jaist.ac.jp/debian buster main contrib non-free
-deb http://ftp.jaist.ac.jp/debian buster-updates main contrib non-free
-deb-src http://ftp.jaist.ac.jp/debian buster-updates main contrib non-free
-deb http://security.debian.org/debian-security buster/updates main contrib non-free
-deb-src http://security.debian.org/debian-security buster/updates main contrib non-free
+deb http://deb.debian.org/debian buster main contrib non-free
+deb-src http://deb.debian.org/debian buster main contrib non-free
+deb http://deb.debian.org/debian buster-updates main contrib non-free
+deb-src http://deb.debian.org/debian buster-updates main contrib non-free
+deb http://deb.debian.org/debian-security buster/updates main contrib non-free
+deb-src http://deb.debian.org/debian-security buster/updates main contrib non-free
 EOF
 
