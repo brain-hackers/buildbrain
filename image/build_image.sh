@@ -25,7 +25,7 @@ for i in $(seq 1 6); do
     esac
 done
 
-dd if=/dev/zero of=${IMG} bs=1M count=2048
+dd if=/dev/zero of=${IMG} bs=1M count=3072
 
 START1=2048
 SECTORS1=$((1024 * 1024 * 64 / 512))
