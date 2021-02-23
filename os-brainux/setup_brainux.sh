@@ -58,6 +58,9 @@ DEBIAN_FRONTEND=noninteractive \
                    python3 python3-dev python3-setuptools python3-wheel python3-pip python3-smbus \
                    resolvconf net-tools ssh openssh-client avahi-daemon curl wget
 
+# Fix Midori launch failure
+sudo update-mime-database /usr/share/mime
+
 # Get wild
 cat <<EOF > /etc/apt/sources.list
 deb http://deb.debian.org/debian buster main contrib non-free
