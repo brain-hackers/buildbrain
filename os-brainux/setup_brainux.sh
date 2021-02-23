@@ -54,9 +54,12 @@ DEBIAN_FRONTEND=noninteractive \
                    alsa-utils \
                    bash tmux vim htop \
                    midori pcmanfm lxterminal xterm gnome-terminal fonts-noto-cjk \
-                   dbus udev build-essential flex bison pkg-config autotools-dev libtool autoconf automake \
+                   dbus udev build-essential flex bison pkg-config autotools-dev libtool autoconf automake device-tree-compiler\
                    python3 python3-dev python3-setuptools python3-wheel python3-pip python3-smbus \
-                   resolvconf net-tools ssh openssh-client avahi-daemon
+                   resolvconf net-tools ssh openssh-client avahi-daemon curl wget
+
+# Fix Midori launch failure
+sudo update-mime-database /usr/share/mime
 
 # Get wild
 cat <<EOF > /etc/apt/sources.list
