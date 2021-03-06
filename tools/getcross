@@ -1,0 +1,26 @@
+#!/bin/sh
+set -e
+
+uboot() {
+    . ./u-boot-brain/.config
+    case "${CONFIG_SYS_CPU}" in
+        arm926ejs) echo -n "arm-linux-gnueabi-"; return;;
+        armv7) echo -n "arm-linux-gnueabihf-"; return;;
+        *) exit 1;;
+    esac
+}
+
+linux() {
+    . ./linux-brain/.config
+    case "${CONFIG_CPU_ARM926T}_${CONFIG_ARCH_MULTI_V7}" in
+        y_) echo -n "arm-linux-gnueabi-"; return;;
+        _y) echo -n "arm-linux-gnueabihf-"; return;;
+        *) exit 1;;
+    esac
+}
+
+case "$1" in
+    u-boot) uboot ;;
+    linux) linux ;;
+    *) exit 1; ;;
+esac

@@ -1,7 +1,8 @@
 JOBS=$(shell grep -c '^processor' /proc/cpuinfo)
 
+UBOOT_CROSS=$(shell ./tools/getcross u-boot)
+LINUX_CROSS=$(shell ./tools/getcross linux)
 export ARCH=arm
-export CROSS_COMPILE=arm-linux-gnueabi-
 
 .PHONY:
 setup:
@@ -33,11 +34,11 @@ udefconfig-%:
 
 .PHONY:
 usavedefconfig:
-	make -C ./u-boot-brain savedefconfig
+	make CROSS_COMPILE=$(UBOOT_CROSS) -C ./u-boot-brain savedefconfig
 
 .PHONY:
 umenuconfig:
-	make -C ./u-boot-brain menuconfig
+	make CROSS_COMPILE=$(UBOOT_CROSS) -C ./u-boot-brain menuconfig
 
 .PHONY:
 uclean:
@@ -45,7 +46,11 @@ uclean:
 
 .PHONY:
 ubuild:
-	make -j$(JOBS) -C ./u-boot-brain u-boot.sb
+	if [ "$(UBOOT_CROSS)" = "arm-linux-gnueabi-" ]; then \
+		make CROSS_COMPILE=$(UBOOT_CROSS) -j$(JOBS) -C ./u-boot-brain u-boot.sb; \
+	else \
+		make CROSS_COMPILE=$(UBOOT_CROSS) -j$(JOBS) -C ./u-boot-brain u-boot.imx; \
+	fi
 
 .PHONY:
 ldefconfig:
@@ -53,11 +58,11 @@ ldefconfig:
 
 .PHONY:
 lmenuconfig:
-	make -C ./linux-brain menuconfig
+	make CROSS_COMPILE=$(LINUX_CROSS) -C ./linux-brain menuconfig
 
 .PHONY:
 lsavedefconfig:
-	make -C ./linux-brain savedefconfig
+	make CROSS_COMPILE=$(LINUX_CROSS) -C ./linux-brain savedefconfig
 	mv ./linux-brain/defconfig ./linux-brain/arch/arm/configs/brain_defconfig
 
 .PHONY:
@@ -66,7 +71,7 @@ lclean:
 
 .PHONY:
 lbuild:
-	make -j$(JOBS) -C ./linux-brain
+	make CROSS_COMPILE=$(LINUX_CROSS) -j$(JOBS) -C ./linux-brain
 
 .PHONY:
 uuu:
