@@ -1,7 +1,9 @@
 JOBS=$(shell grep -c '^processor' /proc/cpuinfo)
 
+UBOOT_CROSS=$(shell ./tools/getcross u-boot)
+LINUX_CROSS=$(shell ./tools/getcross linux)
+ROOTFS_CROSS=$(shell ./tools/getcross rootfs)
 export ARCH=arm
-export CROSS_COMPILE=arm-linux-gnueabi-
 
 .PHONY:
 setup:
@@ -33,11 +35,11 @@ udefconfig-%:
 
 .PHONY:
 usavedefconfig:
-	make -C ./u-boot-brain savedefconfig
+	make CROSS_COMPILE=$(UBOOT_CROSS) -C ./u-boot-brain savedefconfig
 
 .PHONY:
 umenuconfig:
-	make -C ./u-boot-brain menuconfig
+	make CROSS_COMPILE=$(UBOOT_CROSS) -C ./u-boot-brain menuconfig
 
 .PHONY:
 uclean:
@@ -45,20 +47,33 @@ uclean:
 
 .PHONY:
 ubuild:
-	make -j$(JOBS) -C ./u-boot-brain u-boot.sb
+	if [ "$(UBOOT_CROSS)" = "arm-linux-gnueabi-" ]; then \
+		make CROSS_COMPILE=$(UBOOT_CROSS) -j$(JOBS) -C ./u-boot-brain u-boot.sb; \
+	else \
+		make CROSS_COMPILE=$(UBOOT_CROSS) -j$(JOBS) -C ./u-boot-brain u-boot.imx; \
+	fi
 
 .PHONY:
 ldefconfig:
 	make -C ./linux-brain brain_defconfig
 
 .PHONY:
+ldefconfig-x1:
+	make -C ./linux-brain imx_v7_defconfig
+
+.PHONY:
 lmenuconfig:
-	make -C ./linux-brain menuconfig
+	make CROSS_COMPILE=$(LINUX_CROSS) -C ./linux-brain menuconfig
 
 .PHONY:
 lsavedefconfig:
-	make -C ./linux-brain savedefconfig
+	make CROSS_COMPILE=$(LINUX_CROSS) -C ./linux-brain savedefconfig
 	mv ./linux-brain/defconfig ./linux-brain/arch/arm/configs/brain_defconfig
+
+.PHONY:
+lsavedefconfig-x1:
+	make CROSS_COMPILE=$(LINUX_CROSS) -C ./linux-brain savedefconfig
+	mv ./linux-brain/defconfig ./linux-brain/arch/arm/configs/imx_v7_defconfig
 
 .PHONY:
 lclean:
@@ -66,7 +81,7 @@ lclean:
 
 .PHONY:
 lbuild:
-	make -j$(JOBS) -C ./linux-brain
+	make CROSS_COMPILE=$(LINUX_CROSS) -j$(JOBS) -C ./linux-brain
 
 .PHONY:
 ldebpkg:
@@ -104,6 +119,14 @@ nkbin-maker:
 nk.bin:
 	./nkbin_maker/bsd-ce ./u-boot-brain/u-boot.bin
 
+.PHONY:
+boot4ubuild:
+	make -C ./boot4u
+
+.PHONY:
+boot4uclean:
+	make -C ./boot4u clean
+
 brainux:
 	@if [ "$(shell uname)" != "Linux" ]; then \
 		echo "Debootstrap is only available in Linux!"; \
@@ -112,9 +135,9 @@ brainux:
 	sudo mkdir -p brainux
 	@if [ "$(CI)" = "true" ]; then \
 		echo "I'm in CI and debootstrap without cache."; \
-		sudo debootstrap --arch=armel --foreign bullseye brainux/; \
+		sudo debootstrap --arch=$(ROOTFS_CROSS) --foreign buster brainux/; \
 	else \
-		sudo debootstrap --arch=armel --foreign bullseye brainux/ http://localhost:65432/debian/; \
+		sudo debootstrap --arch=$(ROOTFS_CROSS) --foreign buster brainux/ http://localhost:65432/debian/; \
 	fi
 	sudo cp /usr/bin/qemu-arm-static brainux/usr/bin/
 	sudo cp ./os-brainux/setup_brainux.sh brainux/
@@ -124,6 +147,9 @@ brainux:
 
 image/sd.img: clean_work
 	./image/build_image.sh
+
+image/sd_x1.img: clean_work
+	./image/build_image_x1.sh
 
 .PHONY:
 clean_work:

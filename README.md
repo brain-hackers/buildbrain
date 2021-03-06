@@ -3,7 +3,7 @@ buildbrain
 
 This repository includes:
 
- - linux-brain, u-boot-brain and nkbin_maker as submodules
+ - linux-brain, u-boot-brain, nkbin_maker and boot4u as submodules
  - Useful build targets in Makefile
  - r3build.toml to watch changes that occur in submodules
 
@@ -21,7 +21,8 @@ Getting Started
 1. Install dependencies.
 
     ```
-    $ sudo apt install build-essential bison flex libncurses5-dev gcc-arm-linux-gnueabi qemu-user-static debootstrap kpartx
+    $ sudo apt install build-essential bison flex libncurses5-dev gcc-arm-linux-gnueabi gcc-arm-linux-gnueabihf libssl-dev bc lzop qemu-user-static debootstrap kpartx
+    $ pip install pyelftools
     ```
 
 1. Clone this repository with recursive clone enabled.
@@ -42,33 +43,46 @@ Getting Started
     - Put `uuu` where the PATH executable points to.
 
 
-Build and inject U-Boot
+Build U-Boot
 -----------------------
 
 1. Run `make udefconfig-sh*` to generate `.config`.
 
     - For Sx1: `make udefconfig-sh1`
     - For Sx6: `make udefconfig-sh6`
+    - For x1:  `make udefconfig-h1`
 
-2. Run `make ubuild` to build whole repository and generate `u-boot.sb`.
+2. Run `make ubuild` to build whole repository and generate `u-boot.sb` or `u-boot.bin`.
 
     - i.MX283 loads a packed U-Boot executable called `u-boot.sb`.
 
-3. To inject the executable into i.MX283 in recovery mode, run `make uuu`.
 
+Inject U-Boot into i.MX283 in recovery mode
+-----------------------
+1. Follow `Build U-Boot` procedure to make U-Boot binary.
+
+1. Run `make uuu`
 
 Build and make NK.bin
 -----------------------
 
-1. Run `make udefconfig` to generate `.config`.
+1. Follow `Build U-Boot` procedure to make U-Boot binary.
 
-2. Run `make ubuild` to build whole repository and generate `u-boot.bin`.
+1. Run `make nkbin-maker`.
 
-3. Run `make nkbin-maker`.
-
-4. To make `nk.bin`, run `make nk.bin`.
+1. To make `nk.bin`, run `make nk.bin`.
 
     - nkbin_maker packs `u-boot.bin` into `nk.bin`.
+
+Build and deploy boot4u
+-----------------------
+
+1. Run `make boot4u`
+
+1. Create index.din and copy AppMain.bin
+    - `mkdir /path/to/your/sd/1st/partition/App/boot4u`
+    - `touch /path/to/your/sd/1st/partition/App/boot4u/index.din`
+    - `cp boot4u/AppMain.bin  /path/to/your/sd/1st/partition/App/boot4u/`
 
 
 Build Linux
@@ -93,6 +107,11 @@ Bootstrap Debian 11 (bullseye)
 1. Run `make image/sd.img`
 
 1. Confirm that `image/sd.img` is built and burn it to an SD card.
+
+Known issues
+----------------------------------------
+If you using gcc 10 for host compiler, `make ubuild` may fail.  
+To complete build, open `/u-boot-brain/scripts/dtc/dtc-lexer.lex.c` or `/u-boot-brain/scripts/dtc/dtc-parser.tab.c` then comment out `YYLTYPE yylloc;`
 
 Watch changes in submodules & auto-build
 ----------------------------------------
