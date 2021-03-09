@@ -26,7 +26,7 @@ Getting Started
 1. Clone this repository with recursive clone enabled.
 
     ```
-    $ git clone --recursive git@github.com:puhitaku/buildbrain.git
+    $ git clone --recursive git@github.com:brain-hackers/buildbrain.git
     ```
 
     - If you've cloned it without `--recursive`, run following command:
