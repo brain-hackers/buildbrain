@@ -2,3 +2,4 @@ env
 debian
 cache/*
 !cache/.gitkeep
+nk.bin
