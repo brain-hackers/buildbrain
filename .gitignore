@@ -3,3 +3,5 @@ debian
 cache/*
 !cache/.gitkeep
 nk.bin
+image/sd.img
+image/work

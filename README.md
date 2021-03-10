@@ -83,25 +83,15 @@ Build Linux
 Bootstrap Debian 10 (buster)
 ----------------------------
 
-1. Partition an SD card into two partitions.
-
-    - 1st: FAT32 (vfat), about 100MB
-    - 2st: ext4, fill the remaining area
-
-1. Build and copy the Linux kernel.
-
-    - Run `make ldefconfig lbuild`.
-    - Copy `/linux-brain/arch/arm/boot/zImage` and `/linux-brain/arch/arm/boot/dts/imx28-evk.dtb` into the 1st partition.
+1. Run `make ldefconfig lbuild`.
 
 1. Run APT cache in background (mandatory): `make aptcache`.
 
-1. Run `make debian`.
+1. Run `make brainux`.
 
-1. Copy all contents in `./debian` into the 2nd partition.
+1. Run `make image.sd.img`
 
-    - `sudo cp -ar ./debian/* /path/to/your/sd/2nd/partition/`
-    - Please make sure that all attributes are preserved with `-a` flag.
-
+1. Confirm that `image/sd.img` exists.
 
 Watch changes in submodules & auto-build
 ----------------------------------------
