@@ -91,7 +91,7 @@ Bootstrap Debian 10 (buster)
 
 1. Run `make image.sd.img`
 
-1. Confirm that `image/sd.img` exists.
+1. Confirm that `image/sd.img` is built and burn it to an SD card.
 
 Watch changes in submodules & auto-build
 ----------------------------------------
@@ -108,4 +108,3 @@ What's r3build?
 ---------------
 
 [r3build](https://github.com/puhitaku/r3build) is a smart file watcher that aims to provide hot-reloading feature like Web frontend development.
-
