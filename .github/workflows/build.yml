@@ -97,6 +97,8 @@ jobs:
             nk: edsh5exe.bin
           - model: sh6
             nk: edsh6exe.bin
+          - model: sh7
+            nk: edsh7exe.bin
 
     steps:
       - uses: actions/checkout@v2
