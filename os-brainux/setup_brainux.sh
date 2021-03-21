@@ -43,6 +43,7 @@ echo root:root | chpasswd
 
 cat <<EOF >> /etc/securetty
 ttymxc0
+ttyLP0
 EOF
 
 DEBIAN_FRONTEND=noninteractive \
