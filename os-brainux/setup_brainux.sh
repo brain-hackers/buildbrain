@@ -1,4 +1,5 @@
 #!/bin/bash
+set -uex -o pipefail
 
 TIMEZONE="Asia/Tokyo"
 
