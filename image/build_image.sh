@@ -17,7 +17,7 @@ for i in $(seq 1 7); do
     case $i in
         1|2|3)
             mv ${REPO}/nk.bin ${WORK}/edsa${i}exe.bin;;
-        4|5|6)
+        4|5|6|7)
             mv ${REPO}/nk.bin ${WORK}/edsh${i}exe.bin;;
         *)
             echo "WTF: $i"
