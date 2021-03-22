@@ -1,7 +1,13 @@
 #!/bin/bash
 set -uex -o pipefail
 
-TIMEZONE="Asia/Tokyo"
+if [ ! -v TIMEZONE ]; then
+    TIMEZONE=Asia/Tokyo
+fi
+
+if [ ! -v CI ]; then
+    CI=false
+fi
 
 /debootstrap/debootstrap --second-stage
 
@@ -32,7 +38,7 @@ apt install -y locales
 
 echo "$TIMEZONE" > /etc/timezone && \
     dpkg-reconfigure -f noninteractive tzdata && \
-    sed -i -e 's/# en_US.UTF-8 UTF-8/en_us.UTF-8 UTF-8/' /etc/locale.gen && \
+    sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
     echo 'LANG="en_US.UTF-8"' > /etc/default/locale && \
     dpkg-reconfigure -f noninteractive locales && \
     update-locale LANG=en_US.UTF-8
