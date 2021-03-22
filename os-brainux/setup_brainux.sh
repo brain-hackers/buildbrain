@@ -57,6 +57,18 @@ DEBIAN_FRONTEND=noninteractive \
                    python3 python3-dev python3-setuptools python3-wheel python3-pip python3-smbus \
                    resolvconf net-tools ssh openssh-client avahi-daemon curl wget git
 
+# Ly
+apt install -y libpam0g-dev libxcb-xkb-dev
+cd /
+git clone https://github.com/nullgemm/ly.git
+cd ly
+make github
+make
+make install
+cd /
+rm -r ly
+systemctl enable ly
+
 # Fix Midori launch failure
 sudo update-mime-database /usr/share/mime
 
@@ -67,6 +79,12 @@ echo "user ALL=(ALL:ALL) ALL" > /etc/sudoers.d/user
 echo -e "127.0.1.1\tbrain" >> /etc/hosts
 
 echo root:root | chpasswd
+
+# Fix Xorg permission for non-root users
+# https://unix.stackexchange.com/questions/315169/how-can-i-run-usr-bin-xorg-without-sudo
+chown root:input /usr/lib/xorg/Xorg
+chmod g+s /usr/lib/xorg/Xorg
+usermod -a -G video user
 
 # Allow root login via UART
 cat <<EOF >> /etc/securetty
