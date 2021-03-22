@@ -69,6 +69,9 @@ cd /
 rm -r ly
 systemctl enable ly
 
+# Create editable xorg.conf.d
+install -m 0777 -d /etc/X11/xorg.conf.d
+
 # Fix Midori launch failure
 sudo update-mime-database /usr/share/mime
 

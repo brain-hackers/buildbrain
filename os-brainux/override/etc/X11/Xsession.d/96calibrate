@@ -1,0 +1,4 @@
+if [ ! -e /etc/X11/xorg.conf.d/99-calibrator.conf ]; then
+	xinput_calibrator --output-filename /etc/X11/xorg.conf.d/99-calibrator.conf
+fi
+
