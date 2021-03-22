@@ -12,10 +12,19 @@ jobs:
     outputs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
     steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          submodules: false
       - name: Generate release name
         id: release_name
         # https://github.community/t/how-to-get-just-the-tag-name/16241/4
         run: echo ::set-output name=name::${GITHUB_REF/refs\/*s\//}
+      - name: Generate changes file
+        uses: sarnold/gitchangelog-action@master
+        with:
+          config_file: .gitchangelog.rc
+          github_token: ${{ secrets.GITHUB_TOKEN }}
       - name: Create release
         id: create_release
         uses: actions/create-release@v1
@@ -24,8 +33,7 @@ jobs:
         with:
           tag_name: ${{ steps.release_name.outputs.name }}
           release_name: ${{ steps.release_name.outputs.name }}
-          body: |
-            Build ${{ steps.release_name.outputs.name }}
+          body_path: CHANGES.md
           draft: false
           prerelease: true
 
