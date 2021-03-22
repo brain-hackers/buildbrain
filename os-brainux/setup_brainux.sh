@@ -47,15 +47,15 @@ echo "brain" > /etc/hostname
 DEBIAN_FRONTEND=noninteractive \
     apt install -y dialog sudo \
                    libjpeg-dev libfreetype6 libfreetype6-dev zlib1g-dev \
-                   xserver-xorg xserver-xorg-video-fbdev xserver-xorg-dev xorg-dev x11-apps \
-                   openbox obconf obmenu \
+                   xserver-xorg xserver-xorg-video-fbdev xserver-xorg-dev xserver-xorg-input-evdev xinput-calibrator xorg-dev x11-apps xinit \
+                   openbox obconf obmenu jwm \
                    weston xwayland \
-                   alsa-utils \
                    bash tmux vim htop \
-                   midori pcmanfm lxterminal xterm gnome-terminal fonts-noto-cjk \
-                   dbus udev build-essential flex bison pkg-config autotools-dev libtool autoconf automake device-tree-compiler\
+                   midori pcmanfm lxterminal xterm gnome-terminal fbterm uim-fep uim-anthy fonts-noto-cjk \
+                   dbus udev alsa-utils usbutils iw \
+                   build-essential flex bison pkg-config autotools-dev libtool autoconf automake device-tree-compiler \
                    python3 python3-dev python3-setuptools python3-wheel python3-pip python3-smbus \
-                   resolvconf net-tools ssh openssh-client avahi-daemon curl wget
+                   resolvconf net-tools ssh openssh-client avahi-daemon curl wget git
 
 # Fix Midori launch failure
 sudo update-mime-database /usr/share/mime
