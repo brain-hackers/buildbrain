@@ -9,7 +9,7 @@ IMG=${REPO}/image/sd.img
 
 mkdir -p ${WORK}
 
-for i in $(seq 1 6); do
+for i in $(seq 1 7); do
     make -C ${REPO}/u-boot-brain pwsh${i}_defconfig
     make -j${JOBS} -C ${REPO}/u-boot-brain u-boot.bin
     ${REPO}/nkbin_maker/bsd-ce ${REPO}/u-boot-brain/u-boot.bin

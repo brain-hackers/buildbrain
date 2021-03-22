@@ -12,10 +12,19 @@ jobs:
     outputs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
     steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          submodules: false
       - name: Generate release name
         id: release_name
         # https://github.community/t/how-to-get-just-the-tag-name/16241/4
         run: echo ::set-output name=name::${GITHUB_REF/refs\/*s\//}
+      - name: Generate changes file
+        uses: sarnold/gitchangelog-action@master
+        with:
+          config_file: .gitchangelog.rc
+          github_token: ${{ secrets.GITHUB_TOKEN }}
       - name: Create release
         id: create_release
         uses: actions/create-release@v1
@@ -24,8 +33,7 @@ jobs:
         with:
           tag_name: ${{ steps.release_name.outputs.name }}
           release_name: ${{ steps.release_name.outputs.name }}
-          body: |
-            Build ${{ steps.release_name.outputs.name }}
+          body_path: CHANGES.md
           draft: false
           prerelease: true
 
@@ -39,7 +47,11 @@ jobs:
       - name: Workaround for apt update failure
         run: sudo rm /etc/apt/sources.list.d/github_git-lfs.*
       - name: Install deps
-        run: sudo apt update && sudo apt install build-essential bison flex libncurses5-dev gcc-arm-linux-gnueabi qemu-user-static debootstrap
+        run: sudo apt update && sudo apt install build-essential bison flex libncurses5-dev gcc-arm-linux-gnueabi qemu-user-static debootstrap python3-pip
+      - name: Upgrade pip and setuptools
+        run: pip3 install -U pip setuptools
+      - name: Install listconfig
+        run: pip3 install listconfig
       - name: Configure for Linux
         run: make ldefconfig
       - name: Build Linux
@@ -63,6 +75,17 @@ jobs:
           asset_path: release.zip
           asset_name: ${{ steps.archive_name.outputs.name }}.zip
           asset_content_type: application/zip
+      - name: Generate listconfig
+        run: listconfig ./linux-brain/Kconfig ./linux-brain/.config > listconfig
+      - name: Upload listconfig
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create_release.outputs.upload_url }}
+          asset_path: listconfig
+          asset_name: listconfig
+          asset_content_type: text/plain
 
   build-uboot:
     runs-on: ubuntu-20.04
@@ -82,6 +105,8 @@ jobs:
             nk: edsh5exe.bin
           - model: sh6
             nk: edsh6exe.bin
+          - model: sh7
+            nk: edsh7exe.bin
 
     steps:
       - uses: actions/checkout@v2
