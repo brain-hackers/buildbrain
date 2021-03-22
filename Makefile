@@ -110,3 +110,7 @@ aptcache:
 	./tools/aptcache_linux_amd64 \
 		-rule 'local=localhost:65432, remote=ftp.jaist.ac.jp' \
 		-rule 'local=localhost:65433, remote=security.debian.org'
+
+.PHONY:
+datetag:
+	git tag $(shell ./tools/version)
