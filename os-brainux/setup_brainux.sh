@@ -44,14 +44,6 @@ echo "$TIMEZONE" > /etc/timezone && \
     update-locale LANG=en_US.UTF-8
 
 echo "brain" > /etc/hostname
-
-
-echo root:root | chpasswd
-
-cat <<EOF >> /etc/securetty
-ttymxc0
-EOF
-
 DEBIAN_FRONTEND=noninteractive \
     apt install -y dialog sudo \
                    libjpeg-dev libfreetype6 libfreetype6-dev zlib1g-dev \
@@ -67,6 +59,19 @@ DEBIAN_FRONTEND=noninteractive \
 
 # Fix Midori launch failure
 sudo update-mime-database /usr/share/mime
+
+# Setup users
+adduser --gecos "" --disabled-password --home /home/user user
+echo user:brain | chpasswd
+echo "user ALL=(ALL:ALL) ALL" > /etc/sudoers.d/user
+echo -e "127.0.1.1\tbrain" >> /etc/hosts
+
+echo root:root | chpasswd
+
+# Allow root login via UART
+cat <<EOF >> /etc/securetty
+ttymxc0
+EOF
 
 # Get wild
 cat <<EOF > /etc/apt/sources.list
