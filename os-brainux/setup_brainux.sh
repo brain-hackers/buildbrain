@@ -43,6 +43,9 @@ echo "$TIMEZONE" > /etc/timezone && \
     dpkg-reconfigure -f noninteractive locales && \
     update-locale LANG=en_US.UTF-8
 
+rm /etc/localtime
+ln -s /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
+
 echo "brain" > /etc/hostname
 DEBIAN_FRONTEND=noninteractive \
     apt install -y dialog sudo \
