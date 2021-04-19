@@ -15,5 +15,7 @@ install -g root -o root -m 0644 $SRC/etc/X11/Xsession.d/96calibrate $DST/etc/X11
 
 install -g root -o root -m 0644 -D $SRC/etc/xdg/weston/weston.ini $DST/etc/xdg/weston/weston.ini
 
-install -g root -o root -m 0644 -D $SRC/home/user/lxterminal/lxterminal.conf $DST/home/user/lxterminal/lxterminal.conf
+install -g 1000 -o 1000 -m 0644 -D $SRC/home/user/.xprofile $DST/home/user/.xprofile
+install -g 1000 -o 1000 -m 0644 -D $SRC/home/user/.config/fcitx/profile $DST/home/user/.config/fcitx/profile
+install -g 1000 -o 1000 -m 0644 -D $SRC/home/user/lxterminal/lxterminal.conf $DST/home/user/lxterminal/lxterminal.conf
 install -g root -o root -m 0644 -D $SRC/etc/jwm/system.jwmrc $DST/etc/jwm/system.jwmrc
