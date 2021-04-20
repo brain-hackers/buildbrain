@@ -69,6 +69,30 @@ lbuild:
 	make -j$(JOBS) -C ./linux-brain
 
 .PHONY:
+ldebpkg:
+	$(MAKE) ldebpkg-build || $(MAKE) ldebpkg-clean
+	mkdir -p debian
+	mv linux-*.buildinfo debian/
+	mv linux-*.changes debian/
+	mv linux-*.diff.gz debian/
+	mv linux-*.dsc debian/
+	mv linux-*.orig.tar.gz debian/
+	mv linux-*.deb debian/
+
+.PHONY:
+ldebpkg-build:
+	make -j$(JOBS) -C ./linux-brain deb-pkg
+
+.PHONY:
+ldebpkg-clean:
+	rm -f linux-*.buildinfo
+	rm -f linux-*.changes
+	rm -f linux-*.diff.gz
+	rm -f linux-*.dsc
+	rm -f linux-*.orig.tar.gz
+	rm -f linux-*.deb
+
+.PHONY:
 uuu:
 	sudo uuu ./u-boot-brain/u-boot.sb
 
