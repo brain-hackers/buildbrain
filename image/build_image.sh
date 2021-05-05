@@ -40,7 +40,7 @@ sfdisk ${IMG} < ${WORK}/part.sfdisk
 
 sudo kpartx -av ${IMG}
 
-LOOPDEV=$(losetup -l | grep sd.img | grep -o 'loop.')
+LOOPDEV=$(losetup -l | grep sd.img | grep -o 'loop.' | tail -n 1)
 
 sudo mkfs.fat -F32 -v -I /dev/mapper/${LOOPDEV}p1
 sudo mkfs.ext4 /dev/mapper/${LOOPDEV}p2
