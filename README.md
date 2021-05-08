@@ -89,7 +89,7 @@ Bootstrap Debian 10 (buster)
 
 1. Run `make brainux`.
 
-1. Run `make image.sd.img`
+1. Run `make image/sd.img`
 
 1. Confirm that `image/sd.img` is built and burn it to an SD card.
 
