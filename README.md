@@ -20,7 +20,7 @@ Getting Started
 1. Install dependencies.
 
     ```
-    $ sudo apt install build-essential bison flex libncurses5-dev gcc-arm-linux-gnueabi
+    $ sudo apt install build-essential bison flex libncurses5-dev gcc-arm-linux-gnueabi qemu-user-static
     ```
 
 1. Clone this repository with recursive clone enabled.
