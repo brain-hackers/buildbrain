@@ -12,6 +12,7 @@ Confirmed environments
 ----------------------
 
 - Debian 10 (buster) amd64
+- Debian 11 (bullseye) amd64
 
 
 Getting Started
