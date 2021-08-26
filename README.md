@@ -81,7 +81,7 @@ Build Linux
 
 
 Bootstrap Debian 11 (bullseye)
-----------------------------
+------------------------------
 
 1. Run `make ldefconfig lbuild`.
 
