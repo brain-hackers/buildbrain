@@ -12,6 +12,7 @@ Confirmed environments
 ----------------------
 
 - Debian 10 (buster) amd64
+- Debian 11 (bullseye) amd64
 
 
 Getting Started
@@ -20,7 +21,7 @@ Getting Started
 1. Install dependencies.
 
     ```
-    $ sudo apt install build-essential bison flex libncurses5-dev gcc-arm-linux-gnueabi qemu-user-static
+    $ sudo apt install build-essential bison flex libncurses5-dev gcc-arm-linux-gnueabi qemu-user-static debootstrap kpartx
     ```
 
 1. Clone this repository with recursive clone enabled.
