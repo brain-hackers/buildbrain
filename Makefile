@@ -2,6 +2,7 @@ JOBS=$(shell grep -c '^processor' /proc/cpuinfo)
 
 UBOOT_CROSS=$(shell ./tools/getcross u-boot)
 LINUX_CROSS=$(shell ./tools/getcross linux)
+ROOTFS_CROSS=$(shell ./tools/getcross rootfs)
 export ARCH=arm
 
 .PHONY:
@@ -26,7 +27,7 @@ watch:
 
 .PHONY:
 udefconfig:
-	make -C ./u-boot-brain pwsh1_defconfig
+	make -C ./u-boot-brain pwh1_defconfig
 
 .PHONY:
 udefconfig-%:
@@ -54,7 +55,7 @@ ubuild:
 
 .PHONY:
 ldefconfig:
-	make -C ./linux-brain brain_defconfig
+	make -C ./linux-brain imx_v7_defconfig
 
 .PHONY:
 lmenuconfig:
@@ -63,7 +64,7 @@ lmenuconfig:
 .PHONY:
 lsavedefconfig:
 	make CROSS_COMPILE=$(LINUX_CROSS) -C ./linux-brain savedefconfig
-	mv ./linux-brain/defconfig ./linux-brain/arch/arm/configs/brain_defconfig
+	mv ./linux-brain/defconfig ./linux-brain/arch/arm/configs/imx_v7_defconfig
 
 .PHONY:
 lclean:
@@ -74,16 +75,12 @@ lbuild:
 	make CROSS_COMPILE=$(LINUX_CROSS) -j$(JOBS) -C ./linux-brain
 
 .PHONY:
-uuu:
-	sudo uuu ./u-boot-brain/u-boot.sb
+boot4ubuild:
+	make -C ./boot4u
 
 .PHONY:
-nkbin-maker:
-	make -C ./nkbin_maker
-
-.PHONY:
-nk.bin:
-	./nkbin_maker/bsd-ce ./u-boot-brain/u-boot.bin
+boot4uclean:
+	make -C ./boot4u clean
 
 brainux:
 	@if [ "$(shell uname)" != "Linux" ]; then \
@@ -93,9 +90,9 @@ brainux:
 	mkdir -p brainux
 	@if [ "$(CI)" = "true" ]; then \
 		echo "I'm in CI and debootstrap without cache."; \
-		sudo debootstrap --arch=armel --foreign buster brainux/; \
+		sudo debootstrap --arch=$(ROOTFS_CROSS) --foreign buster brainux/; \
 	else \
-		sudo debootstrap --arch=armel --foreign buster brainux/ http://localhost:65432/debian/; \
+		sudo debootstrap --arch=$(ROOTFS_CROSS) --foreign buster brainux/ http://localhost:65432/debian/; \
 	fi
 	sudo cp /usr/bin/qemu-arm-static brainux/usr/bin/
 	sudo cp ./os-brainux/setup_brainux.sh brainux/
