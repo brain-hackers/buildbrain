@@ -92,7 +92,7 @@ Bootstrap Debian 10 (buster)
 Known issues
 ----------------------------------------
 If you using gcc 10 for host compiler, `make ubuild` may fail.  
-To complete build, open u-boot-brain/scripts/dtc/dtc-lexer.lex.c or u-boot-brain/scripts/dtc/dtc-parser.tab.c then comment out `YYLTYPE yylloc;`
+To complete build, open `/u-boot-brain/scripts/dtc/dtc-lexer.lex.c` or `/u-boot-brain/scripts/dtc/dtc-parser.tab.c` then comment out `YYLTYPE yylloc;`
 
 Watch changes in submodules & auto-build
 ----------------------------------------
