@@ -64,6 +64,41 @@ jobs:
           asset_name: ${{ steps.archive_name.outputs.name }}.zip
           asset_content_type: application/zip
 
+  build-linux-x1:
+    runs-on: ubuntu-20.04
+    needs: [create_release]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Workaround for apt update failure
+        run: sudo rm /etc/apt/sources.list.d/github_git-lfs.*
+      - name: Install deps
+        run: sudo apt update && sudo apt install build-essential bison flex libncurses5-dev gcc-arm-linux-gnueabihf libssl-dev lzop qemu-user-static debootstrap
+      - name: Configure for Linux
+        run: make ldefconfig-x1
+      - name: Build Linux
+        run: make lbuild
+      - name: Setup releases
+        id: release_name
+        run: |
+          mkdir release
+          cp ./linux-brain/arch/arm/boot/dts/imx7ulp-pwh*.dtb release/
+          cp ./linux-brain/arch/arm/boot/zImage release/zImage
+          zip -r release.zip release/
+      - name: Generate archive name
+        id: archive_name
+        run: echo ::set-output name=name::linux-x1-${GITHUB_REF/refs\/*s\//}
+      - name: Upload release.zip
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create_release.outputs.upload_url }}
+          asset_path: release.zip
+          asset_name: ${{ steps.archive_name.outputs.name }}.zip
+          asset_content_type: application/zip
+
   build-uboot:
     runs-on: ubuntu-20.04
     needs: [create_release]
@@ -120,6 +155,45 @@ jobs:
           asset_name: ${{ steps.archive_name.outputs.name }}.zip
           asset_content_type: application/zip
 
+  build-uboot-x1:
+    runs-on: ubuntu-20.04
+    needs: [create_release]
+    strategy:
+      matrix:
+        include:
+          - model: h1
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Workaround for apt update failure
+        run: sudo rm /etc/apt/sources.list.d/github_git-lfs.*
+      - name: Install deps
+        run: sudo apt update && sudo apt install build-essential bison flex libncurses5-dev gcc-arm-linux-gnueabihf libssl-dev lzop qemu-user-static debootstrap
+      - name: Configure for U-Boot
+        run: make udefconfig-${{ matrix.model }}
+      - name: Build U-Boot
+        run: make ubuild
+      - name: Setup releases
+        id: release_name
+        run: |
+          mkdir release
+          cp ./u-boot-brain/u-boot.bin release/u-boot.bin
+          zip -r release.zip release/
+      - name: Generate archive name
+        id: archive_name
+        run: echo ::set-output name=name::uboot-${{ matrix.model }}-${GITHUB_REF/refs\/*s\//}
+      - name: Upload release.zip
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create_release.outputs.upload_url }}
+          asset_path: release.zip
+          asset_name: ${{ steps.archive_name.outputs.name }}.zip
+          asset_content_type: application/zip
+
   build-sd:
     runs-on: ubuntu-20.04
     needs: [create_release]
@@ -156,3 +230,40 @@ jobs:
           asset_name: ${{ steps.image_name.outputs.name }}.zip
           asset_content_type: application/zip
 
+  build-sd-x1:
+    runs-on: ubuntu-20.04
+    needs: [create_release]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Workaround for apt update failure
+        run: sudo rm /etc/apt/sources.list.d/github_git-lfs.*
+      - name: Install deps
+        run: sudo apt update && sudo apt install kpartx build-essential bison flex libncurses5-dev gcc-arm-linux-gnueabihf libssl-dev lzop qemu-user-static debootstrap
+      - name: Configure for U-Boot
+        run: make udefconfig-x1
+      - name: Build U-Boot
+        run: make ubuild
+      - name: Configure for Linux
+        run: make ldefconfig-x1
+      - name: Build Linux
+        run: make lbuild
+      - name: Build Debian Root
+        run: make brainux
+      - name: Generate image name
+        id: image_name
+        run: echo ::set-output name=name::sdimage-x1-${GITHUB_REF/refs\/*s\//}
+      - name: Build SD image
+        run: make image/sd_x1.img && mv image/sd_x1.img ${{ steps.image_name.outputs.name }}.img
+      - name: Compress
+        run: zip ${{ steps.image_name.outputs.name }}.zip ${{ steps.image_name.outputs.name }}.img
+      - name: Upload the image
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create_release.outputs.upload_url }}
+          asset_path: ${{ steps.image_name.outputs.name }}.zip
+          asset_name: ${{ steps.image_name.outputs.name }}.zip
+          asset_content_type: application/zip

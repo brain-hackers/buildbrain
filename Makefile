@@ -124,6 +124,9 @@ brainux:
 image/sd.img: clean_work
 	./image/build_image.sh
 
+image/sd_x1.img: clean_work
+	./image/build_image_x1.sh
+
 .PHONY:
 clean_work:
 	sudo rm -rf image/work
