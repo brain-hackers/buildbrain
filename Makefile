@@ -27,7 +27,7 @@ watch:
 
 .PHONY:
 udefconfig:
-	make -C ./u-boot-brain pwh1_defconfig
+	make -C ./u-boot-brain pwsh1_defconfig
 
 .PHONY:
 udefconfig-%:
@@ -55,6 +55,10 @@ ubuild:
 
 .PHONY:
 ldefconfig:
+	make -C ./linux-brain brain_defconfig
+
+.PHONY:
+ldefconfig-x1:
 	make -C ./linux-brain imx_v7_defconfig
 
 .PHONY:
@@ -63,6 +67,11 @@ lmenuconfig:
 
 .PHONY:
 lsavedefconfig:
+	make CROSS_COMPILE=$(LINUX_CROSS) -C ./linux-brain savedefconfig
+	mv ./linux-brain/defconfig ./linux-brain/arch/arm/configs/brain_defconfig
+
+.PHONY:
+lsavedefconfig-x1:
 	make CROSS_COMPILE=$(LINUX_CROSS) -C ./linux-brain savedefconfig
 	mv ./linux-brain/defconfig ./linux-brain/arch/arm/configs/imx_v7_defconfig
 
@@ -73,6 +82,18 @@ lclean:
 .PHONY:
 lbuild:
 	make CROSS_COMPILE=$(LINUX_CROSS) -j$(JOBS) -C ./linux-brain
+
+.PHONY:
+uuu:
+	sudo uuu ./u-boot-brain/u-boot.sb
+
+.PHONY:
+nkbin-maker:
+	make -C ./nkbin_maker
+
+.PHONY:
+nk.bin:
+	./nkbin_maker/bsd-ce ./u-boot-brain/u-boot.bin
 
 .PHONY:
 boot4ubuild:

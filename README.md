@@ -3,7 +3,7 @@ buildbrain
 
 This repository includes:
 
- - linux-brain, u-boot-brain and boot4u as submodules
+ - linux-brain, u-boot-brain, nkbin_maker and boot4u as submodules
  - Useful build targets in Makefile
  - r3build.toml to watch changes that occur in submodules
 
@@ -20,7 +20,7 @@ Getting Started
 1. Install dependencies.
 
     ```
-    $ sudo apt install build-essential bison flex libncurses5-dev gcc-arm-linux-gnueabihf libssl-dev bc lzop
+    $ sudo apt install build-essential bison flex libncurses5-dev gcc-arm-linux-gnueabi gcc-arm-linux-gnueabihf libssl-dev bc lzop
     $ pip install pyelftools
     ```
 
@@ -36,14 +36,40 @@ Getting Started
     $ git submodule update --init --recursive
     ```
 
+1. Install uuu.
+
+    - Follow [the instruction](https://github.com/NXPmicro/mfgtools#linux) and build `uuu` executable.
+    - Put `uuu` where the PATH executable points to.
+
 
 Build U-Boot
 -----------------------
 
-1. Run `make udefconfig` to generate `.config`.
+1. Run `make udefconfig-sh*` to generate `.config`.
 
-2. Run `make ubuild` to build whole repository and generate `u-boot.bin`.
+    - For Sx1: `make udefconfig-sh1`
+    - For Sx6: `make udefconfig-sh6`
+    - For x1:  `make udefconfig-h1`
 
+2. Run `make ubuild` to build whole repository and generate `u-boot.sb` or `u-boot.bin`.
+
+    - i.MX283 loads a packed U-Boot executable called `u-boot.sb`.
+
+
+Inject U-Boot into i.MX283 in recovery mode
+-----------------------
+1. Follow `Build U-Boot` procedure to make U-Boot binary.
+
+1. Run `make uuu`
+
+Build and make NK.bin
+-----------------------
+
+1. Follow `Build U-Boot` procedure to make U-Boot binary.
+
+1. To make `nk.bin`, run `make nkbin`.
+
+    - nkbin_maker packs `u-boot.bin` into `nk.bin`.
 
 Build and deploy boot4u
 -----------------------
@@ -77,7 +103,7 @@ Bootstrap Debian 10 (buster)
 1. Build and copy the Linux kernel.
 
     - Run `make ldefconfig lbuild`.
-    - Copy `/linux-brain/arch/arm/boot/zImage` and `/linux-brain/arch/arm/boot/dts/imx7ulp-pwh1.dtb` into the 1st partition.
+    - Copy `/linux-brain/arch/arm/boot/zImage` and `/linux-brain/arch/arm/boot/dts/imx28-evk.dtb`(Sx1-6)`/linux-brain/arch/arm/boot/dts/imx7ulp-pwh1.dtb`(x1) into the 1st partition.
 
 1. Run APT cache in background (mandatory): `make aptcache`.
 
