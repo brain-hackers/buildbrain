@@ -67,7 +67,7 @@ Build and make NK.bin
 
 1. Follow `Build U-Boot` procedure to make U-Boot binary.
 
-1. To make `nk.bin`, run `make nkbin`.
+1. To make `nk.bin`, run `make nk.bin`.
 
     - nkbin_maker packs `u-boot.bin` into `nk.bin`.
 
