@@ -24,8 +24,8 @@ deb http://${REPO}/debian bullseye main contrib non-free
 deb-src http://${REPO}/debian bullseye main contrib non-free
 deb http://${REPO}/debian bullseye-updates main contrib non-free
 deb-src http://${REPO}/debian bullseye-updates main contrib non-free
-deb http://${REPO_SECURITY}/debian-security bullseye/updates main contrib non-free
-deb-src http://${REPO_SECURITY}/debian-security bullseye/updates main contrib non-free
+deb http://${REPO_SECURITY}/debian-security bullseye-security/updates main contrib non-free
+deb-src http://${REPO_SECURITY}/debian-security bullseye-security/updates main contrib non-free
 EOF
 
 cat <<EOF > /etc/apt/apt.conf.d/90-norecommend
@@ -108,7 +108,7 @@ deb http://deb.debian.org/debian bullseye main contrib non-free
 deb-src http://deb.debian.org/debian bullseye main contrib non-free
 deb http://deb.debian.org/debian bullseye-updates main contrib non-free
 deb-src http://deb.debian.org/debian bullseye-updates main contrib non-free
-deb http://deb.debian.org/debian-security bullseye/updates main contrib non-free
-deb-src http://deb.debian.org/debian-security bullseye/updates main contrib non-free
+deb http://deb.debian.org/debian-security bullseye-security/updates main contrib non-free
+deb-src http://deb.debian.org/debian-security bullseye-security/updates main contrib non-free
 EOF
 
