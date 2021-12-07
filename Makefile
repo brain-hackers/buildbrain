@@ -109,7 +109,7 @@ brainux:
 		echo "Debootstrap is only available in Linux!"; \
 		exit 1; \
 	fi
-	mkdir -p brainux
+	sudo mkdir -p brainux
 	@if [ "$(CI)" = "true" ]; then \
 		echo "I'm in CI and debootstrap without cache."; \
 		sudo debootstrap --arch=armel --foreign bullseye brainux/; \
