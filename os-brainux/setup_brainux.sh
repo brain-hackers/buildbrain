@@ -20,12 +20,12 @@ else
 fi
 
 cat <<EOF > /etc/apt/sources.list
-deb http://${REPO}/debian buster main contrib non-free
-deb-src http://${REPO}/debian buster main contrib non-free
-deb http://${REPO}/debian buster-updates main contrib non-free
-deb-src http://${REPO}/debian buster-updates main contrib non-free
-deb http://${REPO_SECURITY}/debian-security buster/updates main contrib non-free
-deb-src http://${REPO_SECURITY}/debian-security buster/updates main contrib non-free
+deb http://${REPO}/debian bullseye main contrib non-free
+deb-src http://${REPO}/debian bullseye main contrib non-free
+deb http://${REPO}/debian bullseye-updates main contrib non-free
+deb-src http://${REPO}/debian bullseye-updates main contrib non-free
+deb http://${REPO_SECURITY}/debian-security bullseye-security/updates main contrib non-free
+deb-src http://${REPO_SECURITY}/debian-security bullseye-security/updates main contrib non-free
 EOF
 
 cat <<EOF > /etc/apt/apt.conf.d/90-norecommend
@@ -43,6 +43,8 @@ echo "$TIMEZONE" > /etc/timezone && \
     dpkg-reconfigure -f noninteractive locales && \
     update-locale LANG=en_US.UTF-8
 
+LANG=en_US.UTF-8
+
 rm /etc/localtime
 ln -s /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
 
@@ -51,7 +53,7 @@ DEBIAN_FRONTEND=noninteractive \
     apt install -y dialog sudo \
                    libjpeg-dev libfreetype6 libfreetype6-dev zlib1g-dev \
                    xserver-xorg xserver-xorg-video-fbdev xserver-xorg-dev xserver-xorg-input-evdev xinput-calibrator xorg-dev x11-apps xinit \
-                   openbox obconf obmenu jwm \
+                   jwm \
                    weston xwayland \
                    bash tmux vim htop \
                    midori pcmanfm lxterminal xterm gnome-terminal fbterm uim-fep uim-anthy fonts-noto-cjk \
@@ -104,11 +106,11 @@ EOF
 
 # Get wild
 cat <<EOF > /etc/apt/sources.list
-deb http://deb.debian.org/debian buster main contrib non-free
-deb-src http://deb.debian.org/debian buster main contrib non-free
-deb http://deb.debian.org/debian buster-updates main contrib non-free
-deb-src http://deb.debian.org/debian buster-updates main contrib non-free
-deb http://deb.debian.org/debian-security buster/updates main contrib non-free
-deb-src http://deb.debian.org/debian-security buster/updates main contrib non-free
+deb http://deb.debian.org/debian bullseye main contrib non-free
+deb-src http://deb.debian.org/debian bullseye main contrib non-free
+deb http://deb.debian.org/debian bullseye-updates main contrib non-free
+deb-src http://deb.debian.org/debian bullseye-updates main contrib non-free
+deb http://deb.debian.org/debian-security bullseye-security/updates main contrib non-free
+deb-src http://deb.debian.org/debian-security bullseye-security/updates main contrib non-free
 EOF
 
