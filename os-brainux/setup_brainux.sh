@@ -43,6 +43,8 @@ echo "$TIMEZONE" > /etc/timezone && \
     dpkg-reconfigure -f noninteractive locales && \
     update-locale LANG=en_US.UTF-8
 
+LANG=en_US.UTF-8
+
 rm /etc/localtime
 ln -s /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
 
