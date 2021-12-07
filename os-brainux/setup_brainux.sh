@@ -20,12 +20,12 @@ else
 fi
 
 cat <<EOF > /etc/apt/sources.list
-deb http://${REPO}/debian buster main contrib non-free
-deb-src http://${REPO}/debian buster main contrib non-free
-deb http://${REPO}/debian buster-updates main contrib non-free
-deb-src http://${REPO}/debian buster-updates main contrib non-free
-deb http://${REPO_SECURITY}/debian-security buster/updates main contrib non-free
-deb-src http://${REPO_SECURITY}/debian-security buster/updates main contrib non-free
+deb http://${REPO}/debian bullseye main contrib non-free
+deb-src http://${REPO}/debian bullseye main contrib non-free
+deb http://${REPO}/debian bullseye-updates main contrib non-free
+deb-src http://${REPO}/debian bullseye-updates main contrib non-free
+deb http://${REPO_SECURITY}/debian-security bullseye/updates main contrib non-free
+deb-src http://${REPO_SECURITY}/debian-security bullseye/updates main contrib non-free
 EOF
 
 cat <<EOF > /etc/apt/apt.conf.d/90-norecommend
@@ -104,11 +104,11 @@ EOF
 
 # Get wild
 cat <<EOF > /etc/apt/sources.list
-deb http://deb.debian.org/debian buster main contrib non-free
-deb-src http://deb.debian.org/debian buster main contrib non-free
-deb http://deb.debian.org/debian buster-updates main contrib non-free
-deb-src http://deb.debian.org/debian buster-updates main contrib non-free
-deb http://deb.debian.org/debian-security buster/updates main contrib non-free
-deb-src http://deb.debian.org/debian-security buster/updates main contrib non-free
+deb http://deb.debian.org/debian bullseye main contrib non-free
+deb-src http://deb.debian.org/debian bullseye main contrib non-free
+deb http://deb.debian.org/debian bullseye-updates main contrib non-free
+deb-src http://deb.debian.org/debian bullseye-updates main contrib non-free
+deb http://deb.debian.org/debian-security bullseye/updates main contrib non-free
+deb-src http://deb.debian.org/debian-security bullseye/updates main contrib non-free
 EOF
 
