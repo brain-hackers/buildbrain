@@ -53,7 +53,7 @@ DEBIAN_FRONTEND=noninteractive \
     apt install -y dialog sudo \
                    libjpeg-dev libfreetype6 libfreetype6-dev zlib1g-dev \
                    xserver-xorg xserver-xorg-video-fbdev xserver-xorg-dev xserver-xorg-input-evdev xinput-calibrator xorg-dev x11-apps xinit \
-                   openbox obconf obmenu jwm \
+                   jwm \
                    weston xwayland \
                    bash tmux vim htop \
                    midori pcmanfm lxterminal xterm gnome-terminal fbterm uim-fep uim-anthy fonts-noto-cjk \
