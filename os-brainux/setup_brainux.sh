@@ -102,6 +102,7 @@ usermod -a -G video user
 # Allow root login via UART
 cat <<EOF >> /etc/securetty
 ttymxc0
+ttyLP0
 EOF
 
 # Get wild
