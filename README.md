@@ -21,8 +21,7 @@ Getting Started
 1. Install dependencies.
 
     ```
-    $ sudo apt install build-essential bison flex libncurses5-dev gcc-arm-linux-gnueabi gcc-arm-linux-gnueabihf libssl-dev bc lzop qemu-user-static debootstrap kpartx
-    $ pip install pyelftools
+    $ sudo apt install build-essential bison flex libncurses5-dev gcc-arm-linux-gnueabi gcc-arm-linux-gnueabihf libssl-dev bc lzop qemu-user-static debootstrap kpartx libyaml-dev python3-pyelftools
     ```
 
 1. Clone this repository with recursive clone enabled.
