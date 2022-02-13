@@ -70,7 +70,7 @@ systemctl enable fake-hwclock
 # Ly
 apt install -y libpam0g-dev libxcb-xkb-dev
 cd /
-git clone --recurse --submodules https://github.com/nullgemm/ly.git
+git clone --recurse-submodules https://github.com/nullgemm/ly.git
 cd ly
 make
 make install
