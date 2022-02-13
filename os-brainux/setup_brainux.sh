@@ -70,14 +70,14 @@ systemctl enable fake-hwclock
 # Ly
 apt install -y libpam0g-dev libxcb-xkb-dev
 cd /
-git clone https://github.com/nullgemm/ly.git
+git clone --recurse -submodules https://github.com/nullgemm/ly.git
 cd ly
-make github
 make
 make install
+systemctl enable ly.service
+systemctl disable getty@tty2.service
 cd /
 rm -r ly
-systemctl enable ly
 
 # Create editable xorg.conf.d
 install -m 0777 -d /etc/X11/xorg.conf.d
