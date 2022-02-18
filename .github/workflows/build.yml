@@ -266,6 +266,12 @@ jobs:
         run: sudo rm /etc/apt/sources.list.d/github_git-lfs.*
       - name: Install deps
         run: sudo apt update && sudo apt install kpartx build-essential bison flex libncurses5-dev gcc-arm-linux-gnueabihf libssl-dev lzop qemu-user-static debootstrap
+      - name: Upgrade pip and setuptools
+        run: pip3 install -U pip setuptools
+      - name: Install pyelftools
+        run: pip3 install pyelftools
+      - name: Build Boot4u
+        run: make boot4ubuild
       - name: Configure for U-Boot
         run: make udefconfig-h1
       - name: Build U-Boot
