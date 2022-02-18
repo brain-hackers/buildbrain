@@ -5,7 +5,7 @@ JOBS=$(nproc)
 REPO=$(git rev-parse --show-toplevel)
 WORK=${REPO}/image/work
 LINUX=${REPO}/linux-brain
-IMG=${REPO}/image/sd.img
+IMG=${REPO}/image/sd_x1.img
 export CROSS_COMPILE=arm-linux-gnueabihf-
 
 mkdir -p ${WORK}
@@ -25,7 +25,7 @@ sfdisk ${IMG} < ${WORK}/part.sfdisk
 
 sudo kpartx -av ${IMG}
 
-LOOPDEV=$(losetup -l | grep sd.img | grep -o 'loop.')
+LOOPDEV=$(losetup -l | grep sd_x1.img | grep -o 'loop.')
 
 sudo mkfs.fat -F32 -v -I /dev/mapper/${LOOPDEV}p1
 sudo mkfs.ext4 /dev/mapper/${LOOPDEV}p2
