@@ -39,7 +39,7 @@ sudo cp ${LINUX}/arch/arm/boot/dts/imx7ulp-pwh*.dtb ${WORK}/p1/
 
 sudo cp ${REPO}/u-boot-brain/u-boot.bin ${WORK}/p1/
 
-mkdir -p ${WORK}/p1/App/boot4u
+sudo mkdir -p ${WORK}/p1/App/boot4u
 sudo cp ${REPO}/boot4u/AppMain.bin ${WORK}/p1/App/boot4u/
 sudo touch ${WORK}/p1/App/boot4u/index.din
 
