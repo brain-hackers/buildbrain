@@ -267,7 +267,7 @@ jobs:
       - name: Install deps
         run: sudo apt update && sudo apt install kpartx build-essential bison flex libncurses5-dev gcc-arm-linux-gnueabihf libssl-dev lzop qemu-user-static debootstrap
       - name: Configure for U-Boot
-        run: make udefconfig-x1
+        run: make udefconfig-h1
       - name: Build U-Boot
         run: make ubuild
       - name: Configure for Linux
