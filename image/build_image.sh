@@ -6,6 +6,7 @@ REPO=$(git rev-parse --show-toplevel)
 WORK=${REPO}/image/work
 LINUX=${REPO}/linux-brain
 IMG=${REPO}/image/sd.img
+export CROSS_COMPILE=arm-linux-gnueabi-
 
 mkdir -p ${WORK}
 
