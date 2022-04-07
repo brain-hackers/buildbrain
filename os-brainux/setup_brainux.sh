@@ -34,7 +34,8 @@ APT::Install-Suggests "0";
 EOF
 
 apt update -y
-apt install -y locales
+DEBIAN_FRONTEND=noninteractive \
+    apt install -y locales
 
 echo "$TIMEZONE" > /etc/timezone && \
     dpkg-reconfigure -f noninteractive tzdata && \
@@ -68,7 +69,8 @@ DEBIAN_FRONTEND=noninteractive \
 systemctl enable fake-hwclock
 
 # Ly
-apt install -y libpam0g-dev libxcb-xkb-dev
+DEBIAN_FRONTEND=noninteractive \
+    apt install -y libpam0g-dev libxcb-xkb-dev
 cd /
 git clone --recurse-submodules https://github.com/nullgemm/ly.git
 cd ly
