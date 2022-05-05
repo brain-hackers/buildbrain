@@ -10,3 +10,6 @@
 [submodule "boot4u"]
 	path = boot4u
 	url = https://github.com/brain-hackers/boot4u
+[submodule "brainlilo"]
+	path = brainlilo
+	url = git@github.com:brain-hackers/brainlilo.git
