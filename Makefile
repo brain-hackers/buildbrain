@@ -127,6 +127,15 @@ boot4ubuild:
 boot4uclean:
 	make -C ./boot4u clean
 
+.PHONY:
+lilobuild:
+	make -C ./brainlilo
+
+.PHONY:
+liloclean:
+	make -C ./brainlilo clean
+
+
 brainux:
 	@if [ "$(shell uname)" != "Linux" ]; then \
 		echo "Debootstrap is only available in Linux!"; \

@@ -9,17 +9,25 @@ IMG=${REPO}/image/sd.img
 export CROSS_COMPILE=arm-linux-gnueabi-
 
 mkdir -p ${WORK}
+mkdir -p ${WORK}/lilobin
 
-for i in $(seq 1 7); do
-    make -C ${REPO}/u-boot-brain pwsh${i}_defconfig
+for i in "g5300" "sh1" "sh2" "sh3" "sh4" "sh5" "sh6" "sh7"; do
+    NUM=$(echo $i | sed -E 's/sh//g')
+
+    make -C ${REPO}/u-boot-brain distclean pw${i}_defconfig
     make -j${JOBS} -C ${REPO}/u-boot-brain u-boot.bin
     ${REPO}/nkbin_maker/bsd-ce ${REPO}/u-boot-brain/u-boot.bin
 
     case $i in
-        1|2|3)
-            mv ${REPO}/nk.bin ${WORK}/edsa${i}exe.bin;;
-        4|5|6|7)
-            mv ${REPO}/nk.bin ${WORK}/edsh${i}exe.bin;;
+        "g5300")
+            mv ${REPO}/nk.bin ${WORK}/edna3exe.bin
+            mv ${REPO}/u-boot-brain/u-boot.bin ${WORK}/lilobin/gen2.bin;;
+        "sh1" | "sh2" | "sh3")
+            mv ${REPO}/nk.bin ${WORK}/edsa${NUM}exe.bin
+            mv ${REPO}/u-boot-brain/u-boot.bin ${WORK}/lilobin/gen3_${NUM}.bin;;
+        "sh4" | "sh5" | "sh6" | "sh7")
+            mv ${REPO}/nk.bin ${WORK}/edsh${NUM}exe.bin
+            mv ${REPO}/u-boot-brain/u-boot.bin ${WORK}/lilobin/gen3_${NUM}.bin;;
         *)
             echo "WTF: $i"
             exit 1;;
@@ -47,12 +55,24 @@ sudo mkfs.fat -F32 -v -I /dev/mapper/${LOOPDEV}p1
 sudo mkfs.ext4 /dev/mapper/${LOOPDEV}p2
 
 mkdir -p ${WORK}/p1 ${WORK}/p2
-sudo mount /dev/mapper/${LOOPDEV}p1 ${WORK}/p1
+sudo mount -o utf8=true /dev/mapper/${LOOPDEV}p1 ${WORK}/p1
 sudo mount /dev/mapper/${LOOPDEV}p2 ${WORK}/p2
 
 sudo cp ${LINUX}/arch/arm/boot/zImage ${WORK}/p1/
-sudo cp ${LINUX}/arch/arm/boot/dts/imx28-pwsh*.dtb ${WORK}/p1/
+sudo cp ${LINUX}/arch/arm/boot/dts/imx28-pw*.dtb ${WORK}/p1/
 sudo cp ${WORK}/*.bin ${WORK}/p1/
+
+make -C ${REPO}/brainlilo
+
+LILO="${WORK}/p1/アプリ/Launch Linux"
+sudo mkdir -p "${LILO}"
+sudo touch "${LILO}/index.din"
+sudo touch "${LILO}/AppMain.cfg"
+sudo cp ${REPO}/brainlilo/*.dll "${LILO}/"
+sudo cp ${REPO}/brainlilo/BrainLILO.exe "${LILO}/AppMain.exe"
+
+sudo mkdir -p ${WORK}/p1/loader
+sudo cp ${WORK}/lilobin/*.bin ${WORK}/p1/loader/
 
 sudo cp -ra ${REPO}/brainux/* ${WORK}/p2/
 

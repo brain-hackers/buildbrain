@@ -128,20 +128,30 @@ jobs:
     strategy:
       matrix:
         include:
+          - model: g5300
+            nk: edna3exe.bin
+            lilo: gen2.bin
           - model: sh1
             nk: edsa1exe.bin
+            lilo: gen3_1.bin
           - model: sh2
             nk: edsa2exe.bin
+            lilo: gen3_2.bin
           - model: sh3
             nk: edsa3exe.bin
+            lilo: gen3_3.bin
           - model: sh4
             nk: edsh4exe.bin
+            lilo: gen3_4.bin
           - model: sh5
             nk: edsh5exe.bin
+            lilo: gen3_5.bin
           - model: sh6
             nk: edsh6exe.bin
+            lilo: gen3_6.bin
           - model: sh7
             nk: edsh7exe.bin
+            lilo: gen3_7.bin
 
     steps:
       - uses: actions/checkout@v2
@@ -164,6 +174,7 @@ jobs:
         run: |
           mkdir release
           cp ./u-boot-brain/u-boot.bin release/u-boot.bin
+          cp ./u-boot-brain/u-boot.bin release/${{ matrix.lilo }}
           cp ./u-boot-brain/u-boot.sb release/u-boot.sb
           cp ./nk.bin release/${{ matrix.nk }}
           zip -r release.zip release/
@@ -226,6 +237,13 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: true
+      - name: Make /opt writable
+        run: sudo chown "$(whoami):$(whoami)" /opt
+      - name: Install cegcc
+        run: |
+          wget -O cegcc.zip https://github.com/brain-hackers/cegcc-build/releases/download/2022-04-11-133546/cegcc-2022-04-11-133546.zip
+          unzip -q cegcc.zip
+          cp -r cegcc /opt/
       - name: Workaround for apt update failure
         run: sudo rm /etc/apt/sources.list.d/github_git-lfs.*
       - name: Install deps
