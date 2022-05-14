@@ -3,13 +3,13 @@
 	url = https://github.com/brain-hackers/u-boot-brain.git
 [submodule "linux-brain"]
 	path = linux-brain
-	url = https://github.com/brain-hackers/linux-brain
+	url = https://github.com/brain-hackers/linux-brain.git
 [submodule "nkbin_maker"]
 	path = nkbin_maker
 	url = https://github.com/brain-hackers/nkbin_maker.git
 [submodule "boot4u"]
 	path = boot4u
-	url = https://github.com/brain-hackers/boot4u
+	url = https://github.com/brain-hackers/boot4u.git
 [submodule "brainlilo"]
 	path = brainlilo
-	url = git@github.com:brain-hackers/brainlilo.git
+	url = https://github.com/brain-hackers/brainlilo.git
