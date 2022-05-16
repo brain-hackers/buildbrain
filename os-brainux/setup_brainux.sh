@@ -61,7 +61,8 @@ DEBIAN_FRONTEND=noninteractive \
                    dbus udev alsa-utils usbutils iw fake-hwclock\
                    build-essential flex bison pkg-config autotools-dev libtool autoconf automake device-tree-compiler \
                    python3 python3-dev python3-setuptools python3-wheel python3-pip python3-smbus \
-                   resolvconf net-tools ssh openssh-client avahi-daemon curl wget git
+                   resolvconf net-tools ssh openssh-client avahi-daemon curl wget git \
+		   network-manager zip neofetch sl python3-numpy ipython3 netsurf-gtk
 
 DEBIAN_FRONTEND=noninteractive \
     apt install -y --install-recommends fcitx-anthy
