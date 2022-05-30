@@ -69,7 +69,9 @@ sudo mkdir -p "${LILO}"
 sudo touch "${LILO}/index.din"
 sudo touch "${LILO}/AppMain.cfg"
 sudo cp ${REPO}/brainlilo/*.dll "${LILO}/"
-sudo cp ${REPO}/brainlilo/BrainLILO.exe "${LILO}/AppMain.exe"
+sudo cp ${REPO}/brainlilo/BrainLILO.exe "${LILO}/AppMain_.exe"
+gzip -d ${REPO}/image/exeopener.exe.gz
+sudo cp ${REPO}/image/exeopener.exe "${LILO}/AppMain.exe"
 
 sudo mkdir -p ${WORK}/p1/loader
 sudo cp ${WORK}/lilobin/*.bin ${WORK}/p1/loader/
