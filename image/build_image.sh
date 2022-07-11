@@ -60,7 +60,8 @@ sudo mount /dev/mapper/${LOOPDEV}p2 ${WORK}/p2
 
 sudo cp ${LINUX}/arch/arm/boot/zImage ${WORK}/p1/
 sudo cp ${LINUX}/arch/arm/boot/dts/imx28-pw*.dtb ${WORK}/p1/
-sudo cp ${WORK}/*.bin ${WORK}/p1/
+sudo mkdir -p ${WORK}/p1/nk
+sudo cp ${WORK}/*.bin ${WORK}/p1/nk/
 
 make -C ${REPO}/brainlilo
 
