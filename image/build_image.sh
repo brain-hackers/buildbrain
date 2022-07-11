@@ -51,8 +51,8 @@ sudo kpartx -av ${IMG}
 
 LOOPDEV=$(losetup -l | grep sd.img | grep -o 'loop.' | tail -n 1)
 
-sudo mkfs.fat -F32 -v -I /dev/mapper/${LOOPDEV}p1
-sudo mkfs.ext4 /dev/mapper/${LOOPDEV}p2
+sudo mkfs.fat -n boot -F32 -v -I /dev/mapper/${LOOPDEV}p1
+sudo mkfs.ext4 -L rootfs /dev/mapper/${LOOPDEV}p2
 
 mkdir -p ${WORK}/p1 ${WORK}/p2
 sudo mount -o utf8=true /dev/mapper/${LOOPDEV}p1 ${WORK}/p1
@@ -60,7 +60,8 @@ sudo mount /dev/mapper/${LOOPDEV}p2 ${WORK}/p2
 
 sudo cp ${LINUX}/arch/arm/boot/zImage ${WORK}/p1/
 sudo cp ${LINUX}/arch/arm/boot/dts/imx28-pw*.dtb ${WORK}/p1/
-sudo cp ${WORK}/*.bin ${WORK}/p1/
+sudo mkdir -p ${WORK}/p1/nk
+sudo cp ${WORK}/*.bin ${WORK}/p1/nk/
 
 make -C ${REPO}/brainlilo
 
