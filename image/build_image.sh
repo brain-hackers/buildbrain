@@ -51,8 +51,8 @@ sudo kpartx -av ${IMG}
 
 LOOPDEV=$(losetup -l | grep sd.img | grep -o 'loop.' | tail -n 1)
 
-sudo mkfs.fat -F32 -v -I /dev/mapper/${LOOPDEV}p1
-sudo mkfs.ext4 /dev/mapper/${LOOPDEV}p2
+sudo mkfs.fat -n boot -F32 -v -I /dev/mapper/${LOOPDEV}p1
+sudo mkfs.ext4 -L rootfs /dev/mapper/${LOOPDEV}p2
 
 mkdir -p ${WORK}/p1 ${WORK}/p2
 sudo mount -o utf8=true /dev/mapper/${LOOPDEV}p1 ${WORK}/p1
