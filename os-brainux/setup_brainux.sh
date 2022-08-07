@@ -33,6 +33,7 @@ APT::Install-Recommends "0";
 APT::Install-Suggests "0";
 EOF
 
+# locales: locale has to be set before going any further
 apt update -y
 DEBIAN_FRONTEND=noninteractive \
     apt install -y locales
@@ -50,6 +51,32 @@ rm /etc/localtime
 ln -s /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
 
 echo "brain" > /etc/hostname
+
+# Install packagecloud repository
+# Reference: https://packagecloud.io/brainhackers/brainux/install
+
+# curl: downloads the GPG key from packagecloud
+# gnupg, debian-archive-keyring: packagecloud verification dependency
+DEBIAN_FRONTEND=noninteractive \
+    apt install -y curl gnupg debian-archive-keyring
+
+# apt-transport-https can be installed after debian-archive-keyring being installed
+DEBIAN_FRONTEND=noninteractive \
+    apt install -y apt-transport-https
+
+# Install GPG key and packagecloud repository config
+mkdir -p /etc/apt/keyrings
+curl -fsSL "https://packagecloud.io/brainhackers/brainux/gpgkey" \
+    | gpg --dearmor > /etc/apt/keyrings/brainhackers_brainux-archive-keyring.gpg
+
+cat <<EOF > /etc/apt/sources.list.d/packagecloud.list
+deb [signed-by=/etc/apt/keyrings/brainhackers_brainux-archive-keyring.gpg] https://packagecloud.io/brainhackers/brainux/any/ any main
+deb-src [signed-by=/etc/apt/keyrings/brainhackers_brainux-archive-keyring.gpg] https://packagecloud.io/brainhackers/brainux/any/ any main
+EOF
+
+# Fetch packagecloud repository
+apt update -y
+
 DEBIAN_FRONTEND=noninteractive \
     apt install -y dialog sudo \
                    libjpeg-dev libfreetype6 libfreetype6-dev zlib1g-dev \
@@ -61,11 +88,12 @@ DEBIAN_FRONTEND=noninteractive \
                    dbus udev alsa-utils usbutils iw fake-hwclock\
                    build-essential flex bison pkg-config autotools-dev libtool autoconf automake device-tree-compiler \
                    python3 python3-dev python3-setuptools python3-wheel python3-pip python3-smbus \
-                   resolvconf net-tools ssh openssh-client avahi-daemon curl wget git \
-		   network-manager zip neofetch sl python3-numpy ipython3 netsurf-gtk
+                   resolvconf net-tools ssh openssh-client avahi-daemon wget git \
+                   network-manager zip neofetch sl python3-numpy ipython3 netsurf-gtk fcitx-anthy
 
+# Packages from packagecloud
 DEBIAN_FRONTEND=noninteractive \
-    apt install -y --install-recommends fcitx-anthy
+    apt install -y --install-recommends brain-config
 
 systemctl enable fake-hwclock
 
