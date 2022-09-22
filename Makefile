@@ -1,8 +1,8 @@
 JOBS=$(shell grep -c '^processor' /proc/cpuinfo)
 
-UBOOT_CROSS=$(shell ./tools/getcross u-boot)
-LINUX_CROSS=$(shell ./tools/getcross linux)
-ROOTFS_CROSS=$(shell ./tools/getcross rootfs)
+UBOOT_CROSS?=$(shell ./tools/getcross u-boot)
+LINUX_CROSS?=$(shell ./tools/getcross linux)
+ROOTFS_CROSS?=$(shell ./tools/getcross rootfs)
 export ARCH=arm
 
 .PHONY:
