@@ -157,6 +157,9 @@ brainux:
 image/sd.img: clean_work
 	./image/build_image.sh
 
+image/emmc.img: clean_work
+	./image/build_image_emmc.sh
+
 image/sd_x1.img: clean_work
 	./image/build_image_x1.sh
 
