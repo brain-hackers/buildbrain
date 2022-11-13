@@ -105,6 +105,7 @@ git clone --recurse-submodules https://github.com/nullgemm/ly.git
 cd ly
 make
 make install
+make installsystemd
 cd /
 rm -r ly
 systemctl enable ly
