@@ -55,10 +55,10 @@ echo "brain" > /etc/hostname
 # Install packagecloud repository
 # Reference: https://packagecloud.io/brainhackers/brainux/install
 
-# curl: downloads the GPG key from packagecloud
+# curl, ca-certificates: downloads the GPG key from packagecloud
 # gnupg, debian-archive-keyring: packagecloud verification dependency
 DEBIAN_FRONTEND=noninteractive \
-    apt install -y curl gnupg debian-archive-keyring
+    apt install -y curl ca-certificates gnupg debian-archive-keyring
 
 # apt-transport-https can be installed after debian-archive-keyring being installed
 DEBIAN_FRONTEND=noninteractive \
