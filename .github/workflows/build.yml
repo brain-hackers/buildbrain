@@ -128,7 +128,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - model: g5300
+          - model: a7200
             nk: edna3exe.bin
             lilo: gen2.bin
           - model: sh1
