@@ -85,7 +85,7 @@ DEBIAN_FRONTEND=noninteractive \
                    weston xwayland \
                    bash tmux vim htop \
                    midori pcmanfm lxterminal xterm gnome-terminal fbterm uim-fep uim-anthy fonts-noto-cjk \
-                   dbus udev alsa-utils usbutils iw fake-hwclock\
+                   dbus udev alsa-utils usbutils iw fake-hwclock systemd-timesyncd\
                    build-essential flex bison pkg-config autotools-dev libtool autoconf automake device-tree-compiler \
                    python3 python3-dev python3-setuptools python3-wheel python3-pip python3-smbus \
                    resolvconf net-tools ssh openssh-client avahi-daemon wget git \
