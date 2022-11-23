@@ -1,9 +1,0 @@
-PRETTY_NAME="Brainux GNU/Linux 11 (bullseye)"
-NAME="Brainux GNU/Linux"
-VERSION_ID="11"
-VERSION="11 (bullseye)"
-VERSION_CODENAME=bullseye
-ID=debian
-HOME_URL="https://github.com/brain-hackers/README"
-SUPPORT_URL="https://github.com/brain-hackers/buildbrain"
-BUG_REPORT_URL="https://github.com/brain-hackers/buildbrain"
