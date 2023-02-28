@@ -16,17 +16,13 @@ for i in "a7200" "sh1" "sh2" "sh3" "sh4" "sh5" "sh6" "sh7"; do
 
     make -C ${REPO}/u-boot-brain distclean pw${i}_defconfig
     make -j${JOBS} -C ${REPO}/u-boot-brain u-boot.bin
-    ${REPO}/nkbin_maker/bsd-ce ${REPO}/u-boot-brain/u-boot.bin
 
     case $i in
         "a7200")
-            mv ${REPO}/nk.bin ${WORK}/edna3exe.bin
             mv ${REPO}/u-boot-brain/u-boot.bin ${WORK}/lilobin/gen2.bin;;
         "sh1" | "sh2" | "sh3")
-            mv ${REPO}/nk.bin ${WORK}/edsa${NUM}exe.bin
             mv ${REPO}/u-boot-brain/u-boot.bin ${WORK}/lilobin/gen3_${NUM}.bin;;
         "sh4" | "sh5" | "sh6" | "sh7")
-            mv ${REPO}/nk.bin ${WORK}/edsh${NUM}exe.bin
             mv ${REPO}/u-boot-brain/u-boot.bin ${WORK}/lilobin/gen3_${NUM}.bin;;
         *)
             echo "WTF: $i"
@@ -60,8 +56,6 @@ sudo mount /dev/mapper/${LOOPDEV}p2 ${WORK}/p2
 
 sudo cp ${LINUX}/arch/arm/boot/zImage ${WORK}/p1/
 sudo cp ${LINUX}/arch/arm/boot/dts/imx28-pw*.dtb ${WORK}/p1/
-sudo mkdir -p ${WORK}/p1/nk
-sudo cp ${WORK}/*.bin ${WORK}/p1/nk/
 
 make -C ${REPO}/brainlilo
 

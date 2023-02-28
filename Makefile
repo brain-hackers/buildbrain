@@ -154,6 +154,18 @@ brainux:
 	sudo rm brainux/setup_brainux.sh
 	sudo ./os-brainux/override.sh ./os-brainux/override ./brainux
 
+minimal:
+	@if [ "$(shell uname)" != "Linux" ]; then \
+		echo "Debootstrap is only available in Linux!"; \
+		exit 1; \
+	fi
+	sudo mkdir -p brainux
+	sudo debootstrap --arch=$(ROOTFS_CROSS) --foreign bullseye brainux/; \
+	sudo cp /usr/bin/qemu-arm-static brainux/usr/bin/
+	sudo cp ./os-minimal/setup_brainux.sh brainux/
+	sudo -E chroot brainux /setup_brainux.sh
+	sudo rm brainux/setup_brainux.sh
+
 image/sd.img: clean_work
 	./image/build_image.sh
 
