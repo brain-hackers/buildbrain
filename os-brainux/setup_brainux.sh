@@ -136,6 +136,9 @@ ttymxc0
 ttyLP0
 EOF
 
+# Enable /boot mount
+systemctl enable boot.mount
+
 # Get wild
 cat <<EOF > /etc/apt/sources.list
 deb http://deb.debian.org/debian bullseye main contrib non-free
