@@ -1,0 +1,9 @@
+[Unit]
+Description=Enable RNDIS USB Gadget
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/enable_rndis_gadget
+
+[Install]
+WantedBy=multi-user.target

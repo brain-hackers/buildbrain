@@ -1,0 +1,25 @@
+#!/bin/sh
+
+g=/sys/kernel/config/usb_gadget/eth
+
+mkdir ${g}
+
+echo "0x3066" > ${g}/bcdDevice
+echo "1" > ${g}/os_desc/use
+echo "0xcd" > ${g}/os_desc/b_vendor_code
+echo "MSFT100" > ${g}/os_desc/qw_sign
+
+mkdir ${g}/functions/rndis.rn0
+echo "RNDIS" > ${g}/functions/rndis.rn0/os_desc/interface.rndis/compatible_id
+echo "5162001" > ${g}/functions/rndis.rn0/os_desc/interface.rndis/sub_compatible_id
+echo "8a:15:8b:44:3a:02" > ${g}/functions/rndis.rn0/dev_addr
+echo "8a:15:8b:44:3a:01" > ${g}/functions/rndis.rn0/host_addr
+
+mkdir ${g}/configs/c.1
+ln -s ${g}/functions/rndis.rn0 ${g}/configs/c.1/
+
+echo "ci_hdrc.0" > ${g}/UDC
+
+sleep 1
+ifconfig usb0 up
+dhclient
