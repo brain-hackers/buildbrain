@@ -136,6 +136,12 @@ ttymxc0
 ttyLP0
 EOF
 
+# Enable /boot mount
+systemctl enable boot.mount
+
+# Enable RNDIS gadget
+systemctl enable rndis_gadget
+
 # Get wild
 cat <<EOF > /etc/apt/sources.list
 deb http://deb.debian.org/debian bullseye main contrib non-free

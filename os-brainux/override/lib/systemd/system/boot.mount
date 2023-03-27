@@ -1,0 +1,10 @@
+[Unit]
+Description=Mount boot partition
+
+[Mount]
+What=/dev/mmcblk1p1
+Where=/boot
+Options=ro
+
+[Install]
+WantedBy=multi-user.target
