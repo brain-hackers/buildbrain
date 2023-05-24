@@ -44,6 +44,9 @@ echo "brain" > /etc/hostname
 # adduser --gecos "" --disabled-password --home /home/user user
 # echo user:brain | chpasswd
 # echo "user ALL=(ALL:ALL) ALL" > /etc/sudoers.d/user
+
+apt install -y ssh jwm xserver-xorg xserver-xorg-video-fbdev xserver-xorg-input-evdev xinput-calibrator x11-apps xinit xterm fonts-vlgothic
+
 echo -e "127.0.1.1\tbrain" >> /etc/hosts
 
 echo root:root | chpasswd
