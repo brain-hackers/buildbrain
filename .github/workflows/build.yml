@@ -12,7 +12,7 @@ jobs:
     outputs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
           submodules: false
@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-20.04
     needs: [create_release]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - name: Workaround for apt update failure
@@ -91,7 +91,7 @@ jobs:
     runs-on: ubuntu-20.04
     needs: [create_release]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - name: Workaround for apt update failure
@@ -154,7 +154,7 @@ jobs:
             lilo: gen3_7.bin
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - name: Workaround for apt update failure
@@ -200,7 +200,7 @@ jobs:
           - model: h1
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - name: Workaround for apt update failure
@@ -234,7 +234,7 @@ jobs:
     runs-on: ubuntu-20.04
     needs: [create_release]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - name: Make /opt writable
@@ -277,7 +277,7 @@ jobs:
     runs-on: ubuntu-20.04
     needs: [create_release]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - name: Workaround for apt update failure
