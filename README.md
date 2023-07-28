@@ -94,8 +94,8 @@ Build Linux
 1. Confirm that `linux-brain/arch/arm/boot/zImage` exists.
 
 
-Bootstrap Debian 11 (bullseye)
-------------------------------
+Build a Debian rootfs
+---------------------
 
 1. Run `make ldefconfig lbuild`.
 
@@ -107,9 +107,23 @@ Bootstrap Debian 11 (bullseye)
 
 1. Confirm that `image/sd.img` is built and burn it to an SD card.
 
+
+Build a Buildroot rootfs
+------------------------
+
+Buildroot rootfs aims to be the most lightweight rootfs for experimental use. `make buildroot_rootfs` runs the defconfig target for rootfs-only build and then builds the rootfs tarball and a CPIO archive for initramfs. `make image/sd_buildroot.img` makes a bootable SD image in `image` directory like the typical Brainux SD image.
+
+If you want to customize the build of Buildroot, `cd` into `buildroot` and use the following targets:
+
+ - `make menuconfig` to change the configuration
+ - `make` to build the rootfs (`-j` option might give you extra speed)
+
+`image/sd_buildroot.img` target expects presence of the tarball at `buildroot/output/images/rootfs.tar`. You'll have to `clean` and rebuild every time you change the Buildroot's config before making the SD image.
+
+
 Known issues
 ----------------------------------------
-If you using gcc 10 for host compiler, `make ubuild` may fail.  
+If you use GCC 10 for the host compiler, `make ubuild` may fail.
 To complete build, open `/u-boot-brain/scripts/dtc/dtc-lexer.lex.c` or `/u-boot-brain/scripts/dtc/dtc-parser.tab.c` then comment out `YYLTYPE yylloc;`
 
 Watch changes in submodules & auto-build
