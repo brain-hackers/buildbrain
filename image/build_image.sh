@@ -5,7 +5,10 @@ JOBS=$(nproc)
 REPO=$(git rev-parse --show-toplevel)
 WORK=${REPO}/image/work
 LINUX=${REPO}/linux-brain
-IMG=${REPO}/image/sd.img
+ROOTFS=$1
+IMG_NAME=$2
+IMG=${REPO}/image/${IMG_NAME}
+SIZE_M=$3
 export CROSS_COMPILE=arm-linux-gnueabi-
 
 mkdir -p ${WORK}
@@ -34,7 +37,7 @@ for i in "a7200" "sh1" "sh2" "sh3" "sh4" "sh5" "sh6" "sh7"; do
     esac
 done
 
-dd if=/dev/zero of=${IMG} bs=1M count=3072
+dd if=/dev/zero of=${IMG} bs=1M count=${SIZE_M}
 
 START1=2048
 SECTORS1=$((1024 * 1024 * 64 / 512))
@@ -49,7 +52,7 @@ sfdisk ${IMG} < ${WORK}/part.sfdisk
 
 sudo kpartx -av ${IMG}
 
-LOOPDEV=$(losetup -l | grep sd.img | grep -o 'loop.' | tail -n 1)
+LOOPDEV=$(losetup -l | grep ${IMG_NAME} | grep -o 'loop.' | tail -n 1)
 
 sudo mkfs.fat -n boot -F32 -v -I /dev/mapper/${LOOPDEV}p1
 sudo mkfs.ext4 -L rootfs /dev/mapper/${LOOPDEV}p2
@@ -71,13 +74,13 @@ sudo touch "${LILO}/index.din"
 sudo touch "${LILO}/AppMain.cfg"
 sudo cp ${REPO}/brainlilo/*.dll "${LILO}/"
 sudo cp ${REPO}/brainlilo/BrainLILO.exe "${LILO}/AppMain_.exe"
-gzip -d ${REPO}/image/exeopener.exe.gz
+gzip -cd ${REPO}/image/exeopener.exe.gz > ${REPO}/image/exeopener.exe
 sudo cp ${REPO}/image/exeopener.exe "${LILO}/AppMain.exe"
 
 sudo mkdir -p ${WORK}/p1/loader
 sudo cp ${WORK}/lilobin/*.bin ${WORK}/p1/loader/
 
-sudo cp -ra ${REPO}/brainux/* ${WORK}/p2/
+sudo cp -ra ${REPO}/${ROOTFS}/* ${WORK}/p2/
 
 sudo umount ${WORK}/p1 ${WORK}/p2
 sudo kpartx -d ${IMG}
