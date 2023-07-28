@@ -135,7 +135,6 @@ lilobuild:
 liloclean:
 	make -C ./brainlilo clean
 
-
 brainux:
 	@if [ "$(shell uname)" != "Linux" ]; then \
 		echo "Debootstrap is only available in Linux!"; \
@@ -155,11 +154,21 @@ brainux:
 	sudo rm brainux/setup_brainux.sh
 	sudo ./os-brainux/override.sh ./os-brainux/override ./brainux
 
+buildroot_rootfs:
+	make -C buildroot brain_imx28_defconfig
+	make -C buildroot -j 12
+	sudo mkdir -p buildroot_rootfs
+	sudo tar -C ./buildroot_rootfs -xf buildroot/output/images/rootfs.tar
+
 image/sd.img: clean_work
-	./image/build_image.sh
+	./image/build_image.sh brainux sd.img 3072
 
 image/sd_x1.img: clean_work
-	./image/build_image_x1.sh
+	./image/build_image_x1.sh brainux sd_x1.img 3072
+
+image/sd_buildroot.img: clean_work
+	./image/build_image.sh buildroot_rootfs sd_buildroot.img 128
+
 
 .PHONY:
 clean_work:
