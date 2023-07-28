@@ -19,8 +19,3 @@ install -g 1000 -o 1000 -m 0644 $SRC/home/user/.config/fcitx/profile $DST/home/u
 sudo -u#1000 -g#1000 mkdir -p $DST/home/user/lxterminal
 install -g 1000 -o 1000 -m 0644 $SRC/home/user/lxterminal/lxterminal.conf $DST/home/user/lxterminal/lxterminal.conf
 install -g root -o root -m 0644 -D $SRC/etc/jwm/system.jwmrc $DST/etc/jwm/system.jwmrc
-
-install -g root -o root -m 0644 $SRC/lib/systemd/system/boot.mount $DST/lib/systemd/system/boot.mount
-
-install -g root -o root -m 0644 $SRC/lib/systemd/system/rndis_gadget.service $DST/lib/systemd/system/rndis_gadget.service
-install -g root -o root -m 0755 $SRC/usr/bin/enable_rndis_gadget $DST/usr/bin/enable_rndis_gadget

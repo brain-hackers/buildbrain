@@ -150,6 +150,7 @@ brainux:
 	fi
 	sudo cp /usr/bin/qemu-arm-static brainux/usr/bin/
 	sudo cp ./os-brainux/setup_brainux.sh brainux/
+	sudo ./os-brainux/override-pre.sh ./os-brainux/override ./brainux
 	sudo -E chroot brainux /setup_brainux.sh
 	sudo rm brainux/setup_brainux.sh
 	sudo ./os-brainux/override.sh ./os-brainux/override ./brainux
