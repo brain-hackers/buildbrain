@@ -13,3 +13,6 @@
 [submodule "brainlilo"]
 	path = brainlilo
 	url = https://github.com/brain-hackers/brainlilo.git
+[submodule "buildroot"]
+	path = buildroot
+	url = https://github.com/brain-hackers/buildroot.git
