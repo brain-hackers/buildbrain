@@ -137,7 +137,6 @@ ttyLP0
 EOF
 
 # Enable /boot mount
-systemctl daemon-reload
 systemctl enable boot.mount
 
 # Enable RNDIS gadget
