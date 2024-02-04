@@ -45,7 +45,7 @@ jobs:
         with:
           submodules: true
       - name: Workaround for apt update failure
-        run: sudo rm /etc/apt/sources.list.d/github_git-lfs.*
+        run: sudo rm -f /etc/apt/sources.list.d/github_git-lfs.*
       - name: Install deps
         run: sudo apt update && sudo apt install build-essential bison flex libncurses5-dev gcc-arm-linux-gnueabi qemu-user-static debootstrap python3-pip
       - name: Upgrade pip and setuptools
@@ -95,7 +95,7 @@ jobs:
         with:
           submodules: true
       - name: Workaround for apt update failure
-        run: sudo rm /etc/apt/sources.list.d/github_git-lfs.*
+        run: sudo rm -f /etc/apt/sources.list.d/github_git-lfs.*
       - name: Install deps
         run: sudo apt update && sudo apt install build-essential bison flex libncurses5-dev gcc-arm-linux-gnueabihf libssl-dev lzop qemu-user-static debootstrap
       - name: Configure for Linux
@@ -131,6 +131,9 @@ jobs:
           - model: a7200
             nk: edna3exe.bin
             lilo: gen2.bin
+          - model: a7400
+            nk: edna3exe.bin
+            lilo: gen2_7400.bin
           - model: sh1
             nk: edsa1exe.bin
             lilo: gen3_1.bin
@@ -158,7 +161,7 @@ jobs:
         with:
           submodules: true
       - name: Workaround for apt update failure
-        run: sudo rm /etc/apt/sources.list.d/github_git-lfs.*
+        run: sudo rm -f /etc/apt/sources.list.d/github_git-lfs.*
       - name: Install deps
         run: sudo apt update && sudo apt install build-essential bison flex libncurses5-dev gcc-arm-linux-gnueabi qemu-user-static debootstrap
       - name: Build nkbin-maker
@@ -204,7 +207,7 @@ jobs:
         with:
           submodules: true
       - name: Workaround for apt update failure
-        run: sudo rm /etc/apt/sources.list.d/github_git-lfs.*
+        run: sudo rm -f /etc/apt/sources.list.d/github_git-lfs.*
       - name: Install deps
         run: sudo apt update && sudo apt install build-essential bison flex libncurses5-dev gcc-arm-linux-gnueabihf libssl-dev lzop qemu-user-static debootstrap
       - name: Configure for U-Boot
@@ -245,7 +248,7 @@ jobs:
           unzip -q cegcc.zip
           cp -r cegcc /opt/
       - name: Workaround for apt update failure
-        run: sudo rm /etc/apt/sources.list.d/github_git-lfs.*
+        run: sudo rm -f /etc/apt/sources.list.d/github_git-lfs.*
       - name: Install deps
         run: sudo apt update && sudo apt install kpartx build-essential bison flex libncurses5-dev gcc-arm-linux-gnueabi qemu-user-static debootstrap
       - name: Configure for Linux
@@ -281,7 +284,7 @@ jobs:
         with:
           submodules: true
       - name: Workaround for apt update failure
-        run: sudo rm /etc/apt/sources.list.d/github_git-lfs.*
+        run: sudo rm -f /etc/apt/sources.list.d/github_git-lfs.*
       - name: Install deps
         run: sudo apt update && sudo apt install kpartx build-essential bison flex libncurses5-dev gcc-arm-linux-gnueabihf libssl-dev lzop qemu-user-static debootstrap
       - name: Upgrade pip and setuptools
