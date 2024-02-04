@@ -131,6 +131,9 @@ jobs:
           - model: a7200
             nk: edna3exe.bin
             lilo: gen2.bin
+          - model: a7400
+            nk: edna3exe.bin
+            lilo: gen2_7400.bin
           - model: sh1
             nk: edsa1exe.bin
             lilo: gen3_1.bin

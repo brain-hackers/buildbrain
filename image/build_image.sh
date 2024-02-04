@@ -14,7 +14,7 @@ export CROSS_COMPILE=arm-linux-gnueabi-
 mkdir -p ${WORK}
 mkdir -p ${WORK}/lilobin
 
-for i in "a7200" "sh1" "sh2" "sh3" "sh4" "sh5" "sh6" "sh7"; do
+for i in "a7200" "a7400" "sh1" "sh2" "sh3" "sh4" "sh5" "sh6" "sh7"; do
     NUM=$(echo $i | sed -E 's/sh//g')
 
     make -C ${REPO}/u-boot-brain distclean pw${i}_defconfig
@@ -25,6 +25,8 @@ for i in "a7200" "sh1" "sh2" "sh3" "sh4" "sh5" "sh6" "sh7"; do
         "a7200")
             mv ${REPO}/nk.bin ${WORK}/edna3exe.bin
             mv ${REPO}/u-boot-brain/u-boot.bin ${WORK}/lilobin/gen2.bin;;
+        "a7400")
+            mv ${REPO}/u-boot-brain/u-boot.bin ${WORK}/lilobin/gen2_7400.bin;;
         "sh1" | "sh2" | "sh3")
             mv ${REPO}/nk.bin ${WORK}/edsa${NUM}exe.bin
             mv ${REPO}/u-boot-brain/u-boot.bin ${WORK}/lilobin/gen3_${NUM}.bin;;
