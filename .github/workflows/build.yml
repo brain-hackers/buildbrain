@@ -49,7 +49,7 @@ jobs:
       - name: Install deps
         run: sudo apt update && sudo apt install build-essential bison flex libncurses5-dev gcc-arm-linux-gnueabi qemu-user-static debootstrap python3-pip
       - name: Upgrade pip and setuptools
-        run: pip3 install -U pip setuptools
+        run: pip3 install -U pip 'setuptools<71'
       - name: Install listconfig
         run: pip3 install listconfig
       - name: Configure for Linux
