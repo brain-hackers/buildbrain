@@ -38,7 +38,7 @@ jobs:
           prerelease: true
 
   build-linux:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     needs: [create_release]
     steps:
       - uses: actions/checkout@v3
@@ -88,7 +88,7 @@ jobs:
           asset_content_type: text/plain
 
   build-linux-x1:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     needs: [create_release]
     steps:
       - uses: actions/checkout@v3
@@ -123,7 +123,7 @@ jobs:
           asset_content_type: application/zip
 
   build-uboot:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     needs: [create_release]
     strategy:
       matrix:
@@ -195,7 +195,7 @@ jobs:
           asset_content_type: application/zip
 
   build-uboot-x1:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     needs: [create_release]
     strategy:
       matrix:
@@ -234,7 +234,7 @@ jobs:
           asset_content_type: application/zip
 
   build-sd:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     needs: [create_release]
     steps:
       - uses: actions/checkout@v3
@@ -281,7 +281,7 @@ jobs:
           asset_content_type: application/zip
 
   build-sd-x1:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     needs: [create_release]
     steps:
       - uses: actions/checkout@v3
