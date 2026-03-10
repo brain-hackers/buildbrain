@@ -143,9 +143,9 @@ brainux:
 	sudo mkdir -p brainux
 	@if [ "$(CI)" = "true" ]; then \
 		echo "I'm in CI and debootstrap without cache."; \
-		sudo debootstrap --arch=$(ROOTFS_CROSS) --foreign bullseye brainux/; \
+		sudo debootstrap --arch=$(ROOTFS_CROSS) --foreign trixie brainux/; \
 	else \
-		sudo debootstrap --arch=$(ROOTFS_CROSS) --foreign bullseye brainux/ http://localhost:65432/debian/; \
+		sudo debootstrap --arch=$(ROOTFS_CROSS) --foreign trixie brainux/ http://localhost:65432/debian/; \
 	fi
 	sudo cp /usr/bin/qemu-arm-static brainux/usr/bin/
 	sudo cp ./os-brainux/setup_brainux.sh brainux/

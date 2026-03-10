@@ -20,12 +20,12 @@ else
 fi
 
 cat <<EOF > /etc/apt/sources.list
-deb http://${REPO}/debian bullseye main contrib non-free
-deb-src http://${REPO}/debian bullseye main contrib non-free
-deb http://${REPO}/debian bullseye-updates main contrib non-free
-deb-src http://${REPO}/debian bullseye-updates main contrib non-free
-deb http://${REPO_SECURITY}/debian-security bullseye-security/updates main contrib non-free
-deb-src http://${REPO_SECURITY}/debian-security bullseye-security/updates main contrib non-free
+deb http://${REPO}/debian trixie main contrib non-free
+deb-src http://${REPO}/debian trixie main contrib non-free
+deb http://${REPO}/debian trixie-updates main contrib non-free
+deb-src http://${REPO}/debian trixie-updates main contrib non-free
+deb http://${REPO_SECURITY}/debian-security trixie-security/updates main contrib non-free
+deb-src http://${REPO_SECURITY}/debian-security trixie-security/updates main contrib non-free
 EOF
 
 cat <<EOF > /etc/apt/apt.conf.d/90-norecommend
@@ -143,11 +143,11 @@ systemctl enable rndis_gadget
 
 # Get wild
 cat <<EOF > /etc/apt/sources.list
-deb http://deb.debian.org/debian bullseye main contrib non-free
-deb-src http://deb.debian.org/debian bullseye main contrib non-free
-deb http://deb.debian.org/debian bullseye-updates main contrib non-free
-deb-src http://deb.debian.org/debian bullseye-updates main contrib non-free
-deb http://deb.debian.org/debian-security bullseye-security/updates main contrib non-free
-deb-src http://deb.debian.org/debian-security bullseye-security/updates main contrib non-free
+deb http://deb.debian.org/debian trixie main contrib non-free
+deb-src http://deb.debian.org/debian trixie main contrib non-free
+deb http://deb.debian.org/debian trixie-updates main contrib non-free
+deb-src http://deb.debian.org/debian trixie-updates main contrib non-free
+deb http://deb.debian.org/debian-security trixie-security/updates main contrib non-free
+deb-src http://deb.debian.org/debian-security trixie-security/updates main contrib non-free
 EOF
 
