@@ -113,7 +113,7 @@ systemctl enable ly
 install -m 0777 -d /etc/X11/xorg.conf.d
 
 # Fix Midori launch failure
-sudo update-mime-database /usr/share/mime
+update-mime-database /usr/share/mime
 
 # Setup users
 adduser --gecos "" --disabled-password --home /home/user user
