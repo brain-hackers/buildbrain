@@ -94,7 +94,7 @@ DEBIAN_FRONTEND=noninteractive \
 DEBIAN_FRONTEND=noninteractive \
     apt install -y --install-recommends brain-config
 
-systemctl enable fake-hwclock
+systemctl enable fake-hwclock-load fake-hwclock-save fake-hwclock-save.timer
 
 # Ly
 DEBIAN_FRONTEND=noninteractive \
