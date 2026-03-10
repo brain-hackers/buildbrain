@@ -83,12 +83,12 @@ DEBIAN_FRONTEND=noninteractive \
                    xserver-xorg xserver-xorg-video-fbdev xserver-xorg-dev xserver-xorg-input-evdev xinput-calibrator xorg-dev x11-apps x11-ico-dvd xinit \
                    jwm \
                    bash tmux vim htop \
-                   midori pcmanfm lxterminal xterm gnome-terminal fbterm uim-fep uim-anthy fonts-noto-cjk \
+                   pcmanfm lxterminal xterm gnome-terminal fbterm uim-fep uim-anthy fonts-noto-cjk \
                    dbus udev alsa-utils usbutils iw fake-hwclock systemd-timesyncd\
                    build-essential flex bison pkg-config autotools-dev libtool autoconf automake device-tree-compiler \
                    python3 python3-dev python3-setuptools python3-wheel python3-pip python3-smbus \
                    resolvconf net-tools ssh openssh-client avahi-daemon wget git \
-                   network-manager zip neofetch sl python3-numpy ipython3 netsurf-gtk fcitx-anthy
+                   network-manager zip fastfetch sl python3-numpy ipython3 netsurf-gtk fcitx-anthy
 
 # Packages from packagecloud
 DEBIAN_FRONTEND=noninteractive \
