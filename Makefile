@@ -177,7 +177,7 @@ clean_work:
 .PHONY:
 aptcache:
 	./tools/aptcache_linux_amd64 \
-		-rule 'local=localhost:65432, remote=ftp.jaist.ac.jp' \
+		-rule 'local=localhost:65432, remote=ftp.riken.jp, root=/Linux/debian' \
 		-rule 'local=localhost:65433, remote=security.debian.org'
 
 .PHONY:
