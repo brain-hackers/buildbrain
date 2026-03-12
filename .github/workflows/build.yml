@@ -54,6 +54,17 @@ jobs:
         run: pip3 install listconfig
       - name: Configure for Linux
         run: make ldefconfig
+      - name: Generate listconfig
+        run: listconfig ./linux-brain/Kconfig ./linux-brain/.config > listconfig
+      - name: Upload listconfig
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create_release.outputs.upload_url }}
+          asset_path: listconfig
+          asset_name: listconfig
+          asset_content_type: text/plain
       - name: Build Linux
         run: make lbuild
       - name: Setup releases
@@ -75,18 +86,6 @@ jobs:
           asset_path: release.zip
           asset_name: ${{ steps.archive_name.outputs.name }}.zip
           asset_content_type: application/zip
-      - name: Generate listconfig
-        run: listconfig ./linux-brain/Kconfig ./linux-brain/.config > listconfig
-      - name: Upload listconfig
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.create_release.outputs.upload_url }}
-          asset_path: listconfig
-          asset_name: listconfig
-          asset_content_type: text/plain
-
   build-linux-x1:
     runs-on: ubuntu-24.04
     needs: [create_release]
