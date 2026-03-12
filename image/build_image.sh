@@ -63,7 +63,8 @@ mkdir -p ${WORK}/p1 ${WORK}/p2
 sudo mount -o utf8=true /dev/mapper/${LOOPDEV}p1 ${WORK}/p1
 sudo mount /dev/mapper/${LOOPDEV}p2 ${WORK}/p2
 
-sudo echo ${BRAINUX_VERSION} > ${WORK}/p1/brainux_version
+echo ${BRAINUX_VERSION} > ${WORK}/brainux_version
+sudo cp ${WORK}/brainux_version ${WORK}/p1/
 sudo cp ${LINUX}/arch/arm/boot/zImage ${WORK}/p1/
 sudo cp ${LINUX}/arch/arm/boot/dts/imx28-pw*.dtb ${WORK}/p1/
 sudo mkdir -p ${WORK}/p1/nk
