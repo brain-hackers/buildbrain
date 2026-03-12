@@ -140,7 +140,12 @@ brainux:
 		echo "Debootstrap is only available in Linux!"; \
 		exit 1; \
 	fi
-	sudo mkdir -p brainux
+	mkdir -p brainux
+	sudo mkdir -p brainux/proc brainux/sys
+	#sudo mount --rbind /dev $(shell pwd)/brainux/dev
+	sudo mount -t proc none $(shell pwd)/brainux/proc
+	sudo mount --rbind /sys $(shell pwd)/brainux/sys
+	
 	@if [ "$(CI)" = "true" ]; then \
 		echo "I'm in CI and debootstrap without cache."; \
 		sudo debootstrap --arch=$(ROOTFS_CROSS) --foreign trixie brainux/; \
@@ -153,6 +158,12 @@ brainux:
 	sudo -E chroot brainux /setup_brainux.sh
 	sudo rm brainux/setup_brainux.sh
 	sudo ./os-brainux/override.sh ./os-brainux/override ./brainux
+
+brainux-clean:
+	#sudo umount -l $(shell pwd)/brainux/dev || true
+	sudo umount $(shell pwd)/brainux/proc || true
+	sudo umount -l $(shell pwd)/brainux/sys || true
+	sudo rm -rf brainux
 
 buildroot_rootfs:
 	make -C buildroot brain_imx28_defconfig
