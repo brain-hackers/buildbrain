@@ -255,7 +255,7 @@ jobs:
       - name: Build Linux
         run: make lbuild
       - name: Build Debian Root
-        run: make brainux
+        run: make brainux brainux-umount-special
       - name: Build bsd-ce
         run: make -C nkbin_maker bsd-ce
       - name: Generate version string and image name
@@ -305,7 +305,7 @@ jobs:
       - name: Build Linux
         run: make lbuild
       - name: Build Debian Root
-        run: make brainux
+        run: make brainux brainux-umount-special
       - name: Generate image name
         id: image_name
         run: echo ::set-output name=name::sdimage-x1-${GITHUB_REF/refs\/*s\//}
