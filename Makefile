@@ -142,7 +142,6 @@ brainux:
 	fi
 	mkdir -p brainux
 	sudo mkdir -p brainux/proc brainux/sys
-	#sudo mount --rbind /dev $(shell pwd)/brainux/dev
 	sudo mount -t proc none $(shell pwd)/brainux/proc
 	sudo mount --rbind /sys $(shell pwd)/brainux/sys
 	
@@ -159,10 +158,12 @@ brainux:
 	sudo rm brainux/setup_brainux.sh
 	sudo ./os-brainux/override.sh ./os-brainux/override ./brainux
 
-brainux-clean:
-	#sudo umount -l $(shell pwd)/brainux/dev || true
+brainux-umount-special:
 	sudo umount $(shell pwd)/brainux/proc || true
 	sudo umount -l $(shell pwd)/brainux/sys || true
+	sudo rm -rf brainux/proc brainux/sys
+
+brainux-clean: brainux-umount-special
 	sudo rm -rf brainux
 
 buildroot_rootfs:
