@@ -139,7 +139,7 @@ EOF
 systemctl enable boot.mount
 
 # Enable RNDIS gadget
-systemctl enable rndis_gadget
+systemctl enable ethernet_gadget
 
 # Get wild
 cat <<EOF > /etc/apt/sources.list

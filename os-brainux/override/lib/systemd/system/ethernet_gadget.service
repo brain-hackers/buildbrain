@@ -1,0 +1,9 @@
+[Unit]
+Description=Enable Ethernet USB Gadget
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/enable_ethernet_gadget
+
+[Install]
+WantedBy=multi-user.target

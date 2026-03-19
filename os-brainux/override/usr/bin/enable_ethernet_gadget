@@ -1,0 +1,29 @@
+#!/bin/sh
+
+g=/sys/kernel/config/usb_gadget/eth
+
+mkdir ${g}
+
+echo "0x0200" > ${g}/bcdUSB
+echo "0x0200" > ${g}/bcdDevice
+
+mkdir -p ${g}/strings/0x409
+echo "0123456789" > ${g}/strings/0x409/serialnumber
+echo "SHARP" > ${g}/strings/0x409/manufacturer
+echo "Brain" > ${g}/strings/0x409/product
+
+mkdir -p ${g}/configs/c.1/strings/0x409
+echo "NCM Config" > ${g}/configs/c.1/strings/0x409/configuration
+echo 250 > ${g}/configs/c.1/MaxPower
+
+mkdir ${g}/functions/ncm.usb0
+echo "8a:15:8b:44:3a:02" > ${g}/functions/ncm.usb0/dev_addr
+echo "8a:15:8b:44:3a:01" > ${g}/functions/ncm.usb0/host_addr
+
+ln -s ${g}/functions/ncm.usb0 ${g}/configs/c.1/
+
+echo "ci_hdrc.0" > ${g}/UDC
+
+sleep 1
+ifconfig usb0 up
+dhclient
