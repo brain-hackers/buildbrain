@@ -140,12 +140,16 @@ brainux:
 		echo "Debootstrap is only available in Linux!"; \
 		exit 1; \
 	fi
-	sudo mkdir -p brainux
+	mkdir -p brainux
+	sudo mkdir -p brainux/proc brainux/sys
+	sudo mount -t proc none $(shell pwd)/brainux/proc
+	sudo mount --rbind /sys $(shell pwd)/brainux/sys
+	
 	@if [ "$(CI)" = "true" ]; then \
 		echo "I'm in CI and debootstrap without cache."; \
-		sudo debootstrap --arch=$(ROOTFS_CROSS) --foreign bullseye brainux/; \
+		sudo debootstrap --arch=$(ROOTFS_CROSS) --foreign trixie brainux/; \
 	else \
-		sudo debootstrap --arch=$(ROOTFS_CROSS) --foreign bullseye brainux/ http://localhost:65432/debian/; \
+		sudo debootstrap --arch=$(ROOTFS_CROSS) --foreign trixie brainux/ http://localhost:65432/debian/; \
 	fi
 	sudo cp /usr/bin/qemu-arm-static brainux/usr/bin/
 	sudo cp ./os-brainux/setup_brainux.sh brainux/
@@ -153,6 +157,14 @@ brainux:
 	sudo -E chroot brainux /setup_brainux.sh
 	sudo rm brainux/setup_brainux.sh
 	sudo ./os-brainux/override.sh ./os-brainux/override ./brainux
+
+brainux-umount-special:
+	sudo umount $(shell pwd)/brainux/proc || true
+	sudo umount -l $(shell pwd)/brainux/sys || true
+	sudo rm -rf brainux/proc brainux/sys
+
+brainux-clean: brainux-umount-special
+	sudo rm -rf brainux
 
 buildroot_rootfs:
 	make -C buildroot brain_imx28_defconfig
@@ -177,7 +189,7 @@ clean_work:
 .PHONY:
 aptcache:
 	./tools/aptcache_linux_amd64 \
-		-rule 'local=localhost:65432, remote=ftp.jaist.ac.jp' \
+		-rule 'local=localhost:65432, remote=ftp.riken.jp, root=/Linux/debian' \
 		-rule 'local=localhost:65433, remote=security.debian.org'
 
 .PHONY:

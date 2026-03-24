@@ -38,7 +38,7 @@ jobs:
           prerelease: true
 
   build-linux:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     needs: [create_release]
     steps:
       - uses: actions/checkout@v3
@@ -54,6 +54,17 @@ jobs:
         run: pip3 install listconfig
       - name: Configure for Linux
         run: make ldefconfig
+      - name: Generate listconfig
+        run: listconfig ./linux-brain/Kconfig ./linux-brain/.config > listconfig
+      - name: Upload listconfig
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create_release.outputs.upload_url }}
+          asset_path: listconfig
+          asset_name: listconfig
+          asset_content_type: text/plain
       - name: Build Linux
         run: make lbuild
       - name: Setup releases
@@ -75,20 +86,8 @@ jobs:
           asset_path: release.zip
           asset_name: ${{ steps.archive_name.outputs.name }}.zip
           asset_content_type: application/zip
-      - name: Generate listconfig
-        run: listconfig ./linux-brain/Kconfig ./linux-brain/.config > listconfig
-      - name: Upload listconfig
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.create_release.outputs.upload_url }}
-          asset_path: listconfig
-          asset_name: listconfig
-          asset_content_type: text/plain
-
   build-linux-x1:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     needs: [create_release]
     steps:
       - uses: actions/checkout@v3
@@ -123,7 +122,7 @@ jobs:
           asset_content_type: application/zip
 
   build-uboot:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     needs: [create_release]
     strategy:
       matrix:
@@ -195,7 +194,7 @@ jobs:
           asset_content_type: application/zip
 
   build-uboot-x1:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     needs: [create_release]
     strategy:
       matrix:
@@ -234,7 +233,7 @@ jobs:
           asset_content_type: application/zip
 
   build-sd:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     needs: [create_release]
     steps:
       - uses: actions/checkout@v3
@@ -256,14 +255,18 @@ jobs:
       - name: Build Linux
         run: make lbuild
       - name: Build Debian Root
-        run: make brainux
+        run: make brainux brainux-umount-special
       - name: Build bsd-ce
         run: make -C nkbin_maker bsd-ce
-      - name: Generate image name
+      - name: Generate version string and image name
         id: image_name
-        run: echo ::set-output name=name::sdimage-${GITHUB_REF/refs\/*s\//}
+        run: |
+          echo "name=sdimage-${GITHUB_REF/refs\/*s\//}" >> $GITHUB_OUTPUT
+          echo "version=${GITHUB_REF/refs\/*s\//}" >> $GITHUB_OUTPUT
       - name: Build SD image
         run: make image/sd.img && mv image/sd.img ${{ steps.image_name.outputs.name }}.img
+        env:
+          BRAINUX_VERSION: ${{ steps.image_name.outputs.version }}
       - name: Compress
         run: zip ${{ steps.image_name.outputs.name }}.zip ${{ steps.image_name.outputs.name }}.img
       - name: Upload the image
@@ -277,7 +280,7 @@ jobs:
           asset_content_type: application/zip
 
   build-sd-x1:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     needs: [create_release]
     steps:
       - uses: actions/checkout@v3
@@ -302,7 +305,7 @@ jobs:
       - name: Build Linux
         run: make lbuild
       - name: Build Debian Root
-        run: make brainux
+        run: make brainux brainux-umount-special
       - name: Generate image name
         id: image_name
         run: echo ::set-output name=name::sdimage-x1-${GITHUB_REF/refs\/*s\//}

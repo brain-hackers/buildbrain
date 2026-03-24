@@ -35,6 +35,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -45,6 +46,7 @@ import (
 
 type Proxy struct {
 	remote string
+	root string
 
 	cli *http.Client
 	cache map[string]struct{}
@@ -81,8 +83,9 @@ func NewProxy() (*Proxy, error) {
 	return p, nil
 }
 
-func (p *Proxy) Run(local, remote string) {
+func (p *Proxy) Run(local, remote, root string) {
 	p.remote = remote
+	p.root = root
 	err := http.ListenAndServe(local, p)
 	if err != nil {
 		panic(err)
@@ -101,13 +104,13 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if nocache {
-		fmt.Printf("GET (no cache): %s%s -> ", p.remote, r.URL.Path)
+		fmt.Printf("GET (no cache): %s%s%s -> ", p.remote, p.root, r.URL.Path)
 		err = p.fetchFromRemote(w, r, false)
 	} else if _, ok := p.cache[encoded]; ok {
-		fmt.Printf("GET (cache hit): %s%s -> ", p.remote, r.URL.Path)
+		fmt.Printf("GET (cache hit): %s%s%s -> ", p.remote, p.root, r.URL.Path)
 		err = p.fetchFromCache(w, r)
 	} else {
-		fmt.Printf("GET (cache miss): %s%s -> ", p.remote, r.URL.Path)
+		fmt.Printf("GET (cache miss): %s%s%s -> ", p.remote, p.root, r.URL.Path)
 		err = p.fetchFromRemote(w, r, true)
 	}
 
@@ -133,6 +136,7 @@ func (p *Proxy) fetchFromRemote(w http.ResponseWriter, r *http.Request, cache bo
 	}
 	newURL.Scheme = "http"
 	newURL.Host = p.remote
+	newURL.Path = path.Join(p.root, newURL.Path)
 
 	req, err := http.NewRequest(http.MethodGet, newURL.String(), nil)
 	if err != nil {
@@ -219,7 +223,7 @@ func (w NullWriter) Close() error {
 }
 
 type rule struct {
-	Local, Remote string
+	Local, Remote, Root string
 }
 
 type rules []rule
@@ -229,7 +233,7 @@ func (r *rules) String() string {
 }
 
 func (r *rules) Set(raw string) error {
-	var local, remote string
+	var local, remote, root string
 
 	kvs := strings.Split(raw, ",")
 	for _, kv := range kvs {
@@ -243,6 +247,8 @@ func (r *rules) Set(raw string) error {
 			local = tokens[1]
 		case "remote":
 			remote = tokens[1]
+		case "root":
+			root = tokens[1]
 		default:
 			return fmt.Errorf("rule has unknown key: '%s'", tokens[0])
 		}
@@ -252,7 +258,7 @@ func (r *rules) Set(raw string) error {
 		return fmt.Errorf("rule lacks mendatory keys: 'local' and/or 'remote'")
 	}
 
-	*r = append(*r, rule{Local: local, Remote: remote})
+	*r = append(*r, rule{Local: local, Remote: remote, Root: root})
 	return nil
 }
 
@@ -268,13 +274,13 @@ func main() {
 	}
 
 	for i, rule := range rules {
-		fmt.Printf("Proxy Rule %d: %s -> %s\n", i+1, rule.Local, rule.Remote)
+		fmt.Printf("Proxy Rule %d: %s -> %s%s\n", i+1, rule.Local, rule.Remote, rule.Root)
 
 		p, err := NewProxy()
 		if err != nil {
 			panic(err)
 		}
-		go p.Run(rule.Local, rule.Remote)
+		go p.Run(rule.Local, rule.Remote, rule.Root)
 	}
 	for {
 		time.Sleep(9999999999)

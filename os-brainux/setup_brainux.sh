@@ -20,12 +20,12 @@ else
 fi
 
 cat <<EOF > /etc/apt/sources.list
-deb http://${REPO}/debian bullseye main contrib non-free
-deb-src http://${REPO}/debian bullseye main contrib non-free
-deb http://${REPO}/debian bullseye-updates main contrib non-free
-deb-src http://${REPO}/debian bullseye-updates main contrib non-free
-deb http://${REPO_SECURITY}/debian-security bullseye-security/updates main contrib non-free
-deb-src http://${REPO_SECURITY}/debian-security bullseye-security/updates main contrib non-free
+deb http://${REPO}/debian trixie main contrib non-free
+deb-src http://${REPO}/debian trixie main contrib non-free
+deb http://${REPO}/debian trixie-updates main contrib non-free
+deb-src http://${REPO}/debian trixie-updates main contrib non-free
+deb http://${REPO_SECURITY}/debian-security trixie-security/updates main contrib non-free
+deb-src http://${REPO_SECURITY}/debian-security trixie-security/updates main contrib non-free
 EOF
 
 cat <<EOF > /etc/apt/apt.conf.d/90-norecommend
@@ -83,18 +83,18 @@ DEBIAN_FRONTEND=noninteractive \
                    xserver-xorg xserver-xorg-video-fbdev xserver-xorg-dev xserver-xorg-input-evdev xinput-calibrator xorg-dev x11-apps x11-ico-dvd xinit \
                    jwm \
                    bash tmux vim htop \
-                   midori pcmanfm lxterminal xterm gnome-terminal fbterm uim-fep uim-anthy fonts-noto-cjk \
+                   pcmanfm lxterminal xterm gnome-terminal fbterm uim-fep uim-anthy fonts-noto-cjk \
                    dbus udev alsa-utils usbutils iw fake-hwclock systemd-timesyncd\
                    build-essential flex bison pkg-config autotools-dev libtool autoconf automake device-tree-compiler \
                    python3 python3-dev python3-setuptools python3-wheel python3-pip python3-smbus \
-                   resolvconf net-tools ssh openssh-client avahi-daemon wget git \
-                   network-manager zip neofetch sl python3-numpy ipython3 netsurf-gtk fcitx-anthy
+                   resolvconf net-tools isc-dhcp-client ssh openssh-client avahi-daemon wget git \
+                   network-manager zip fastfetch sl python3-numpy ipython3 netsurf-gtk fcitx-anthy
 
 # Packages from packagecloud
 DEBIAN_FRONTEND=noninteractive \
     apt install -y --install-recommends brain-config
 
-systemctl enable fake-hwclock
+systemctl enable fake-hwclock-load fake-hwclock-save fake-hwclock-save.timer
 
 # Ly
 DEBIAN_FRONTEND=noninteractive \
@@ -113,7 +113,7 @@ systemctl enable ly
 install -m 0777 -d /etc/X11/xorg.conf.d
 
 # Fix Midori launch failure
-sudo update-mime-database /usr/share/mime
+update-mime-database /usr/share/mime
 
 # Setup users
 adduser --gecos "" --disabled-password --home /home/user user
@@ -139,15 +139,15 @@ EOF
 systemctl enable boot.mount
 
 # Enable RNDIS gadget
-systemctl enable rndis_gadget
+systemctl enable ethernet_gadget
 
 # Get wild
 cat <<EOF > /etc/apt/sources.list
-deb http://deb.debian.org/debian bullseye main contrib non-free
-deb-src http://deb.debian.org/debian bullseye main contrib non-free
-deb http://deb.debian.org/debian bullseye-updates main contrib non-free
-deb-src http://deb.debian.org/debian bullseye-updates main contrib non-free
-deb http://deb.debian.org/debian-security bullseye-security/updates main contrib non-free
-deb-src http://deb.debian.org/debian-security bullseye-security/updates main contrib non-free
+deb http://deb.debian.org/debian trixie main contrib non-free
+deb-src http://deb.debian.org/debian trixie main contrib non-free
+deb http://deb.debian.org/debian trixie-updates main contrib non-free
+deb-src http://deb.debian.org/debian trixie-updates main contrib non-free
+deb http://deb.debian.org/debian-security trixie-security/updates main contrib non-free
+deb-src http://deb.debian.org/debian-security trixie-security/updates main contrib non-free
 EOF
 
