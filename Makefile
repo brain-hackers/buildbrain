@@ -159,7 +159,11 @@ brainux:
 	sudo cp /usr/bin/qemu-arm-static brainux/usr/bin/
 	sudo cp ./os-brainux/setup_brainux.sh brainux/
 	sudo ./os-brainux/override-pre.sh ./os-brainux/override ./brainux
-
+	# Register qemu-arm-static binfmt handler if not already present.
+	# The F (fixed) flag makes the kernel resolve the interpreter from the
+	# host filesystem so it works inside the chroot even without qemu in it.
+	# This is a no-op if the entry already exists (e.g. in CI or native Linux).
+	sudo bash -c 'mount binfmt_misc -t binfmt_misc /proc/sys/fs/binfmt_misc 2>/dev/null; test -e /proc/sys/fs/binfmt_misc/qemu-arm || echo ":qemu-arm:M::\x7fELF\x01\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x28\x00:\xff\xff\xff\xff\xff\xff\xff\x00\xff\xff\xff\xff\xff\xff\xff\xff\xfe\xff\xff\xff:/usr/bin/qemu-arm-static:F" > /proc/sys/fs/binfmt_misc/register'
 	# Allow qemu-arm-static to reserve the guest address space at low virtual
 	# addresses (0x1000).  On Linux hosts vm.mmap_min_addr defaults to 65536
 	# which blocks the reservation, causing armel binaries like sqv (apt's
