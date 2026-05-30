@@ -135,7 +135,8 @@ lilobuild:
 liloclean:
 	make -C ./brainlilo clean
 
-brainux:
+.PHONY: brainux brainux-umount-special brainux-clean
+brainux: 
 	@if [ "$(shell uname)" != "Linux" ]; then \
 		echo "Debootstrap is only available in Linux!"; \
 		exit 1; \
