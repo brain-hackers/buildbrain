@@ -141,16 +141,21 @@ brainux:
 		exit 1; \
 	fi
 	mkdir -p brainux
-	sudo mkdir -p brainux/proc brainux/sys
-	sudo mount -t proc none $(shell pwd)/brainux/proc
-	sudo mount --rbind /sys $(shell pwd)/brainux/sys
-	
 	@if [ "$(CI)" = "true" ]; then \
 		echo "I'm in CI and debootstrap without cache."; \
 		sudo debootstrap --arch=$(ROOTFS_CROSS) --foreign trixie brainux/; \
 	else \
 		sudo debootstrap --arch=$(ROOTFS_CROSS) --foreign trixie brainux/ http://localhost:65432/debian/; \
 	fi
+
+	# Mount proc and sys to allow debootstrap to run the second stage in the chroot.
+	# Keep the mounting commands AFTER the first stage of debootstrap, because
+	# debootstrap's cleanup code/trap tries to clean up the target directory
+	# (`rm -rf /work/brainux/proc`) and fails because proc virtual files can't be removed.
+	sudo mkdir -p brainux/proc brainux/sys
+	sudo mount -t proc none $(shell pwd)/brainux/proc
+	sudo mount --rbind /sys $(shell pwd)/brainux/sys
+
 	sudo cp /usr/bin/qemu-arm-static brainux/usr/bin/
 	sudo cp ./os-brainux/setup_brainux.sh brainux/
 	sudo ./os-brainux/override-pre.sh ./os-brainux/override ./brainux
