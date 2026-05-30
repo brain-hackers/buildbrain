@@ -3,5 +3,6 @@ brainux
 cache/*
 !cache/.gitkeep
 nk.bin
-image/sd.img
+image/sd*.img
+*.exe
 image/work
