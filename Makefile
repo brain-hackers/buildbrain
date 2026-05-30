@@ -159,6 +159,12 @@ brainux:
 	sudo cp /usr/bin/qemu-arm-static brainux/usr/bin/
 	sudo cp ./os-brainux/setup_brainux.sh brainux/
 	sudo ./os-brainux/override-pre.sh ./os-brainux/override ./brainux
+
+	# Allow qemu-arm-static to reserve the guest address space at low virtual
+	# addresses (0x1000).  On Linux hosts vm.mmap_min_addr defaults to 65536
+	# which blocks the reservation, causing armel binaries like sqv (apt's
+	# OpenPGP verifier) to fail.  This requires --privileged in Docker.
+	sudo sh -c 'echo 0 > /proc/sys/vm/mmap_min_addr'
 	sudo -E chroot brainux /setup_brainux.sh
 	sudo rm brainux/setup_brainux.sh
 	sudo ./os-brainux/override.sh ./os-brainux/override ./brainux
