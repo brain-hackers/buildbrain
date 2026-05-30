@@ -1,12 +1,13 @@
 buildbrain
 ==========
 
-This repository includes:
+Scripts for building [Brainux](https://brainux.org/), a custom Linux distribution for the [Sharp Brain](https://jp.sharp/edictionary/) series of electronic dictionaries.
 
- - linux-brain, u-boot-brain, nkbin_maker and boot4u as submodules
- - Useful build targets in Makefile
- - r3build.toml to watch changes that occur in submodules
+This meta-repository includes:
 
+- linux-brain, u-boot-brain, nkbin_maker and boot4u as submodules
+- Useful build targets in Makefile
+- `r3build.toml` to watch changes that occur in submodules
 
 Confirmed environments
 ----------------------
@@ -18,32 +19,34 @@ Confirmed environments
 Getting Started
 ---------------
 
+For Debian-based systems:
+
 1. Install dependencies.
 
-    ```
-    $ sudo apt install build-essential bison flex libncurses5-dev gcc-arm-linux-gnueabi gcc-arm-linux-gnueabihf libssl-dev bc lzop qemu-user-static debootstrap kpartx libyaml-dev python3-pyelftools
+    ```sh
+    sudo apt install build-essential bison flex libncurses5-dev gcc-arm-linux-gnueabi gcc-arm-linux-gnueabihf libssl-dev bc lzop qemu-user-static debootstrap kpartx libyaml-dev python3-pyelftools
     ```
 
-1. Clone this repository with recursive clone enabled.
+2. Clone this repository recursively.
 
-    ```
-    $ git clone --recursive git@github.com:brain-hackers/buildbrain.git
+    ```sh
+    git clone --recursive git@github.com:brain-hackers/buildbrain.git
     ```
 
     - If you've cloned it without `--recursive`, run following command:
 
-    ```
-    $ git submodule update --init --recursive
+    ```sh
+    git submodule update --init --recursive
     ```
 
-1. Install uuu.
+3. Install `uuu`.
 
     - Follow [the instruction](https://github.com/NXPmicro/mfgtools#linux) and build `uuu` executable.
     - Put `uuu` where the PATH executable points to.
 
 
 Build U-Boot
------------------------
+------------
 
 1. Run `make udefconfig-sh*` to generate `.config`.
 
@@ -55,9 +58,9 @@ Build U-Boot
 
     - i.MX283 loads a packed U-Boot executable called `u-boot.sb`.
 
-
 Inject U-Boot into i.MX283 in recovery mode
 -----------------------
+
 1. Follow `Build U-Boot` procedure to make U-Boot binary.
 
 1. Run `make uuu`
@@ -83,7 +86,6 @@ Build and deploy boot4u
     - `touch /path/to/your/sd/1st/partition/App/boot4u/index.din`
     - `cp boot4u/AppMain.bin  /path/to/your/sd/1st/partition/App/boot4u/`
 
-
 Build Linux
 -----------
 
@@ -92,7 +94,6 @@ Build Linux
 1. Run `make lbuild` to generate `zImage`.
 
 1. Confirm that `linux-brain/arch/arm/boot/zImage` exists.
-
 
 Build a Debian rootfs
 ---------------------
@@ -107,7 +108,6 @@ Build a Debian rootfs
 
 1. Confirm that `image/sd.img` is built and burn it to an SD card.
 
-
 Build a Buildroot rootfs
 ------------------------
 
@@ -115,14 +115,15 @@ Buildroot rootfs aims to be the most lightweight rootfs for experimental use. `m
 
 If you want to customize the build of Buildroot, `cd` into `buildroot` and use the following targets:
 
- - `make menuconfig` to change the configuration
- - `make` to build the rootfs (`-j` option might give you extra speed)
+- `make menuconfig` to change the configuration
+- `make` to build the rootfs (`-j` option might give you extra speed)
 
 `image/sd_buildroot.img` target expects presence of the tarball at `buildroot/output/images/rootfs.tar`. You'll have to `clean` and rebuild every time you change the Buildroot's config before making the SD image.
 
 
 Known issues
-----------------------------------------
+------------
+
 If you use GCC 10 for the host compiler, `make ubuild` may fail.
 To complete build, open `/u-boot-brain/scripts/dtc/dtc-lexer.lex.c` or `/u-boot-brain/scripts/dtc/dtc-parser.tab.c` then comment out `YYLTYPE yylloc;`
 
@@ -134,10 +135,12 @@ Watch changes in submodules & auto-build
     - Python 3 venv in `env`
     - r3build command in the env
 
-1. Run `r3build`. It'll detect the changes you make and builds the corresponding executable automatically.
+2. Run `r3build`. It'll detect the changes you make and build the corresponding executable automatically.
 
+> [!NOTE] What's r3build?
+> [r3build](https://github.com/puhitaku/r3build) is a smart file watcher that aims to provide hot-reloading feature like Web frontend development.
 
-What's r3build?
----------------
+Disclaimer
+----------
 
-[r3build](https://github.com/puhitaku/r3build) is a smart file watcher that aims to provide hot-reloading feature like Web frontend development.
+This repository is not affiliated with Sharp Corporation. The content is provided "as is" without any warranties. Use at your own risk.
