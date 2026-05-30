@@ -156,6 +156,8 @@ brainux:
 	sudo mount -t proc none $(shell pwd)/brainux/proc
 	sudo mount --rbind /sys $(shell pwd)/brainux/sys
 
+	# Copy qemu-arm-static and setup script to allow running the second stage of
+	# debootstrap in the chroot on an x86 host.
 	sudo cp /usr/bin/qemu-arm-static brainux/usr/bin/
 	sudo cp ./os-brainux/setup_brainux.sh brainux/
 	sudo ./os-brainux/override-pre.sh ./os-brainux/override ./brainux
