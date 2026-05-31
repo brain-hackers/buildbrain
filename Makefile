@@ -5,6 +5,9 @@ LINUX_CROSS=$(shell ./tools/getcross linux)
 ROOTFS_CROSS=$(shell ./tools/getcross rootfs)
 export ARCH=arm
 
+DOCKER_IMAGE := buildbrain-builder:local
+ROOTFS_VOLUME := buildbrain-brainux-rootfs
+
 .PHONY:
 setup:
 	@echo "Updating submodules"
@@ -213,3 +216,66 @@ aptcache:
 .PHONY:
 datetag:
 	git tag $(shell ./tools/version)
+
+# ========== Docker-based build targets (for macOS and other non-Linux hosts) ==========
+
+.PHONY:
+docker-build:
+	docker build --platform linux/amd64 -t $(DOCKER_IMAGE) -f Dockerfile .
+
+.PHONY:
+docker-uboot:
+	docker run --rm --platform linux/amd64 -v "$$PWD":/work -w /work $(DOCKER_IMAGE) \
+		bash -lc "make udefconfig-sh1 && make ubuild"
+
+# Build Linux kernel using brain defconfig.
+# mrproper wipes stale host-tool binaries (e.g. arm64 objects left from a
+# previous native build) so they are always recompiled for the container's
+# architecture before defconfig and the full build run.
+.PHONY:
+docker-kernel:
+	docker run --rm --platform linux/amd64 -v "$$PWD":/work -w /work $(DOCKER_IMAGE) \
+		bash -lc "make lclean; make ldefconfig && make lbuild"
+
+# Build Debian rootfs in container with debootstrap and qemu.
+# The rootfs is stored in a Docker named volume (Linux ext4 inside the Docker
+# Desktop VM) instead of the macOS APFS bind mount.  This is critical: APFS
+# cannot represent mknod device files or preserve all Linux permission bits,
+# which produces a rootfs that fails to boot despite appearing structurally
+# complete.  A named volume stores a true Linux filesystem and avoids all of
+# these issues.
+.PHONY:
+docker-rootfs: docker-volume-rm docker-volume-create
+	docker run --rm --platform linux/amd64 --privileged -e CI=true \
+		-v $(ROOTFS_VOLUME):/work/brainux \
+		-v "$$PWD":/work -w /work $(DOCKER_IMAGE) \
+		bash -lc "make brainux"
+
+# Assemble SD image from pre-built kernel and rootfs.
+# Requires privileged mode because make targets use loop devices, kpartx and mount.
+# Mounts the same named volume used by docker-rootfs so the rootfs copy into the
+# ext4 partition originates from the Linux-native volume, not from macOS APFS.
+.PHONY:
+docker-sd-image:
+	docker run --rm --platform linux/amd64 --privileged \
+		-v $(ROOTFS_VOLUME):/work/brainux \
+		-v "$$PWD":/work -w /work $(DOCKER_IMAGE) \
+		bash -lc "make -C nkbin_maker clean all && make IMG_BUILD_JOBS=1 image/sd.img"
+
+# Build complete SD image from scratch (stages: kernel, rootfs, then assembly).
+# We split the build into 3 phases to avoid overwhelming the daemon on macOS Docker Desktop.
+.PHONY:
+docker-sd-image-full: docker-kernel docker-rootfs docker-sd-image
+
+# --------------------- Docker named-volume helpers ---------------------
+# docker-rootfs already recreates the volume automatically; these targets are
+# provided for manual use (e.g. inspecting, wiping, or recreating between runs).
+.PHONY:
+docker-volume-create:
+	docker volume create $(ROOTFS_VOLUME)
+
+.PHONY:
+docker-volume-rm:
+	docker volume rm $(ROOTFS_VOLUME) 2>/dev/null || true
+
+# ==================== end of Docker-based build targets ====================

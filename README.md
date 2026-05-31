@@ -14,7 +14,9 @@ Confirmed environments
 
 - Debian 10 (buster) amd64
 - Debian 11 (bullseye) amd64
+- macOS 26.5 (Tahoe) arm64-apple-darwin25.5.0 via Docker
 
+**Typical Runtime**: 3 hrs is typical on a M2 Max MacBook Pro via Docker.
 
 Getting Started
 ---------------
@@ -44,6 +46,7 @@ For Debian-based systems:
     - Follow [the instruction](https://github.com/NXPmicro/mfgtools#linux) and build `uuu` executable.
     - Put `uuu` where the PATH executable points to.
 
+For macOS, see [Docker build](#docker-build) section below.
 
 Build U-Boot
 ------------
@@ -120,6 +123,89 @@ If you want to customize the build of Buildroot, `cd` into `buildroot` and use t
 
 `image/sd_buildroot.img` target expects presence of the tarball at `buildroot/output/images/rootfs.tar`. You'll have to `clean` and rebuild every time you change the Buildroot's config before making the SD image.
 
+Docker build
+------------
+
+You can build everything in Docker instead of preparing native Linux cross toolchains on your host.
+
+### Prerequisites
+
+- Docker Desktop (or Docker Engine) with Linux containers enabled
+- A clone with submodules initialized
+
+### Steps
+
+1. Build the builder image.
+
+    ```sh
+    make docker-build
+    ```
+
+2. Build complete SD image in stages (recommended for macOS to avoid daemon crashes).
+
+    ```sh
+    make docker-sd-image-full
+    ```
+
+    This runs three separate containers in sequence, which distributes resource load and prevents Docker Desktop daemon from running out of memory. Alternatively, run each stage independently:
+
+    ```sh
+    make docker-kernel
+    make docker-rootfs
+    make docker-sd-image
+    ```
+
+    **Note:** On macOS Docker Desktop, the combined memory footprint of kernel compilation, rootfs staging, and loop device operations can exceed the default VM allocation (~2-4 GB). Breaking into stages allows the daemon to garbage collect between steps.
+
+    **Note:** `make docker-rootfs` (and thus `make docker-sd-image-full`) always deletes and recreates the named volume `buildbrain-brainux-rootfs` before building, so each rootfs build starts from a clean slate. To delete the volume manually between runs use `make docker-volume-rm`.
+
+### Direct Docker commands (advanced)
+
+For macOS, run in **stages** and use a **named volume** for the rootfs.
+
+> [!NOTE] Why a named volume for the rootfs?
+> macOS APFS (the host filesystem behind Docker bind mounts) cannot create device
+> files (`mknod`), may strip `setuid` bits, and does not faithfully preserve all
+> Linux filesystem attributes.  If the Debian rootfs is stored on APFS the result
+> looks complete but will fail to boot — systemd cannot exec as PID 1 because the
+> rootfs is subtly broken.  The `make docker-*` targets below store `brainux/` in a
+> Docker **named volume** (`buildbrain-brainux-rootfs`), which lives inside the
+> Docker Desktop Linux VM on an ext4 filesystem and supports full Linux semantics.
+
+```sh
+# Create a named volume for the rootfs (Linux ext4 inside the Docker Desktop VM)
+$ docker volume create buildbrain-brainux-rootfs
+
+# Stage 1: kernel (bind mount is fine for source + outputs)
+$ docker run --rm --platform linux/amd64 -v "$PWD":/work -w /work buildbrain-builder:local \
+    bash -lc "make ldefconfig && make lbuild"
+
+# Stage 2: rootfs (must use named volume, NOT a bind mount for brainux/)
+$ docker run --rm --platform linux/amd64 --privileged -e CI=true \
+    -v buildbrain-brainux-rootfs:/work/brainux \
+    -v "$PWD":/work -w /work buildbrain-builder:local \
+    bash -lc "make brainux"
+
+# Stage 3: image assembly (mount the same named volume so cp -a reads from Linux ext4)
+$ docker run --rm --platform linux/amd64 --privileged \
+    -v buildbrain-brainux-rootfs:/work/brainux \
+    -v "$PWD":/work -w /work buildbrain-builder:local \
+    bash -lc "make -C nkbin_maker clean all && make IMG_BUILD_JOBS=1 image/sd.img"
+```
+
+On Linux with sufficient resources, you can run all steps in one container (no named volume needed on a native Linux host):
+
+```sh
+$ docker run --rm --platform linux/amd64 --privileged -e CI=true -v "$PWD":/work -w /work buildbrain-builder:local \
+    bash -lc "make ldefconfig lbuild && make nkbin-maker && make brainux && make image/sd.img"
+```
+
+Other useful Docker recipes:
+
+- `make docker-uboot` to build U-Boot
+- `make docker-kernel` to build Linux kernel
+- `make docker-volume-create` to (re-)create the rootfs named volume
+- `make docker-volume-rm` to delete the rootfs named volume and reclaim its disk space
 
 Known issues
 ------------
