@@ -152,7 +152,6 @@ brainux:
 		sudo debootstrap --arch=$(ROOTFS_CROSS) --foreign trixie brainux/ http://localhost:65432/debian/; \
 	fi
 
-	# Mount proc and sys to allow debootstrap to run the second stage in the chroot.
 	# Keep the mounting commands AFTER the first stage of debootstrap, because
 	# debootstrap's cleanup code/trap tries to clean up the target directory
 	# (`rm -rf /work/brainux/proc`) and fails because proc virtual files can't be removed.
@@ -160,15 +159,10 @@ brainux:
 	sudo mount -t proc none $(shell pwd)/brainux/proc
 	sudo mount --rbind /sys $(shell pwd)/brainux/sys
 
-	# Copy qemu-arm-static and setup script to allow running the second stage of
-	# debootstrap in the chroot on an x86 host.
 	sudo cp /usr/bin/qemu-arm-static brainux/usr/bin/
 	sudo cp ./os-brainux/setup_brainux.sh brainux/
 	sudo ./os-brainux/override-pre.sh ./os-brainux/override ./brainux
 	# Register qemu-arm-static binfmt handler if not already present.
-	# The F (fixed) flag makes the kernel resolve the interpreter from the
-	# host filesystem so it works inside the chroot even without qemu in it.
-	# This is a no-op if the entry already exists (e.g. in CI or native Linux).
 	sudo bash -c 'mount binfmt_misc -t binfmt_misc /proc/sys/fs/binfmt_misc 2>/dev/null; test -e /proc/sys/fs/binfmt_misc/qemu-arm || echo ":qemu-arm:M::\x7fELF\x01\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x28\x00:\xff\xff\xff\xff\xff\xff\xff\x00\xff\xff\xff\xff\xff\xff\xff\xff\xfe\xff\xff\xff:/usr/bin/qemu-arm-static:F" > /proc/sys/fs/binfmt_misc/register'
 	# Allow qemu-arm-static to reserve the guest address space at low virtual
 	# addresses (0x1000).  On Linux hosts vm.mmap_min_addr defaults to 65536
@@ -217,8 +211,6 @@ aptcache:
 datetag:
 	git tag $(shell ./tools/version)
 
-# ========== Docker-based build targets (for macOS and other non-Linux hosts) ==========
-
 .PHONY:
 docker-build:
 	docker build --platform linux/amd64 -t $(DOCKER_IMAGE) -f Dockerfile .
@@ -228,22 +220,11 @@ docker-uboot:
 	docker run --rm --platform linux/amd64 -v "$$PWD":/work -w /work $(DOCKER_IMAGE) \
 		bash -lc "make udefconfig-sh1 && make ubuild"
 
-# Build Linux kernel using brain defconfig.
-# mrproper wipes stale host-tool binaries (e.g. arm64 objects left from a
-# previous native build) so they are always recompiled for the container's
-# architecture before defconfig and the full build run.
 .PHONY:
 docker-kernel:
 	docker run --rm --platform linux/amd64 -v "$$PWD":/work -w /work $(DOCKER_IMAGE) \
 		bash -lc "make lclean; make ldefconfig && make lbuild"
 
-# Build Debian rootfs in container with debootstrap and qemu.
-# The rootfs is stored in a Docker named volume (Linux ext4 inside the Docker
-# Desktop VM) instead of the macOS APFS bind mount.  This is critical: APFS
-# cannot represent mknod device files or preserve all Linux permission bits,
-# which produces a rootfs that fails to boot despite appearing structurally
-# complete.  A named volume stores a true Linux filesystem and avoids all of
-# these issues.
 .PHONY:
 docker-rootfs: docker-volume-rm docker-volume-create
 	docker run --rm --platform linux/amd64 --privileged -e CI=true \
@@ -251,10 +232,6 @@ docker-rootfs: docker-volume-rm docker-volume-create
 		-v "$$PWD":/work -w /work $(DOCKER_IMAGE) \
 		bash -lc "make brainux"
 
-# Assemble SD image from pre-built kernel and rootfs.
-# Requires privileged mode because make targets use loop devices, kpartx and mount.
-# Mounts the same named volume used by docker-rootfs so the rootfs copy into the
-# ext4 partition originates from the Linux-native volume, not from macOS APFS.
 .PHONY:
 docker-sd-image:
 	docker run --rm --platform linux/amd64 --privileged \
@@ -262,14 +239,9 @@ docker-sd-image:
 		-v "$$PWD":/work -w /work $(DOCKER_IMAGE) \
 		bash -lc "make -C nkbin_maker clean all && make IMG_BUILD_JOBS=1 image/sd.img"
 
-# Build complete SD image from scratch (stages: kernel, rootfs, then assembly).
-# We split the build into 3 phases to avoid overwhelming the daemon on macOS Docker Desktop.
 .PHONY:
 docker-sd-image-full: docker-kernel docker-rootfs docker-sd-image
 
-# --------------------- Docker named-volume helpers ---------------------
-# docker-rootfs already recreates the volume automatically; these targets are
-# provided for manual use (e.g. inspecting, wiping, or recreating between runs).
 .PHONY:
 docker-volume-create:
 	docker volume create $(ROOTFS_VOLUME)
@@ -277,5 +249,3 @@ docker-volume-create:
 .PHONY:
 docker-volume-rm:
 	docker volume rm $(ROOTFS_VOLUME) 2>/dev/null || true
-
-# ==================== end of Docker-based build targets ====================
