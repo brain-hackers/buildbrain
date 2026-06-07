@@ -43,7 +43,7 @@ sudo mkdir -p ${WORK}/p1/App/boot4u
 sudo cp ${REPO}/boot4u/AppMain.bin ${WORK}/p1/App/boot4u/
 sudo touch ${WORK}/p1/App/boot4u/index.din
 
-sudo cp -ra ${REPO}/brainux/* ${WORK}/p2/
+sudo cp -a "${REPO}/brainux/." "${WORK}/p2/"
 
 sudo umount ${WORK}/p1 ${WORK}/p2
 sudo kpartx -d ${IMG}
