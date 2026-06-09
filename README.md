@@ -119,6 +119,12 @@ If you want to customize the build of Buildroot, `cd` into `buildroot` and use t
  - `make menuconfig` to change the configuration
  - `make` to build the rootfs (`-j` option might give you extra speed)
 
+For Docker-based customization, use the interactive targets:
+
+1. `make docker-buildroot-menuconfig`
+2. `make docker-buildroot-savedefconfig` — writes `buildroot/.config` back to `buildroot/configs/brain_imx28_defconfig` so your changes are committed-safe.
+3. `make docker-buildroot-rootfs` — rebuilds the rootfs with the updated config.
+
 `image/sd_buildroot.img` target expects presence of the tarball at `buildroot/output/images/rootfs.tar`. You'll have to `clean` and rebuild every time you change the Buildroot's config before making the SD image.
 
 
@@ -157,6 +163,22 @@ You can build everything in Docker instead of preparing native Linux cross toolc
     **Note:** On macOS Docker Desktop, the combined memory footprint of kernel compilation, rootfs staging, and loop device operations can exceed the default VM allocation (~2-4 GB). Breaking into stages allows the daemon to garbage collect between steps.
 
     **Note:** `make docker-rootfs` (and thus `make docker-sd-image-full`) always deletes and recreates the named volume `buildbrain-brainux-rootfs` before building, so each rootfs build starts from a clean slate. To delete the volume manually between runs use `make docker-volume-rm`.
+
+3. *(Optional)* Build a Buildroot-based SD image instead.
+
+    ```sh
+    make docker-buildroot-full
+    ```
+
+    This builds the Linux kernel, the Buildroot rootfs, and assembles `image/sd_buildroot.img`.  Run each stage independently if preferred:
+
+    ```sh
+    make docker-kernel
+    make docker-buildroot-rootfs
+    make docker-buildroot-sd-image
+    ```
+
+    The Buildroot rootfs is stored in a separate named volume (`buildbrain-buildroot-rootfs`) for the same Linux-filesystem reasons as the Debian rootfs.  `make docker-buildroot-rootfs` always recreates it from scratch; use `make docker-buildroot-volume-rm` to wipe it manually.
 
 ### Direct Docker commands (advanced)
 
@@ -203,8 +225,8 @@ Other useful Docker recipes:
 
 - `make docker-uboot` to build U-Boot
 - `make docker-kernel` to build Linux kernel
-- `make docker-volume-create` to (re-)create the rootfs named volume
-- `make docker-volume-rm` to delete the rootfs named volume and reclaim its disk space
+- `make docker-volume-create` / `make docker-volume-rm` to manage the Debian rootfs volume
+- `make docker-buildroot-volume-create` / `make docker-buildroot-volume-rm` to manage the Buildroot rootfs volume
 
 
 Known issues

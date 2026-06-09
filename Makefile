@@ -7,6 +7,12 @@ export ARCH=arm
 
 DOCKER_IMAGE := buildbrain-builder:local
 ROOTFS_VOLUME := buildbrain-brainux-rootfs
+# Separate, leaner image for Buildroot.  Based on debian:bookworm (GCC 12)
+# which is compatible with the 2023.05-era Buildroot fork without any patches.
+BUILDROOT_DOCKER_IMAGE := buildbrain-buildroot:local
+ROOTFS_VOLUME     := buildbrain-brainux-rootfs
+BUILDROOT_VOLUME  := buildbrain-buildroot-rootfs
+BUILDROOT_OUTPUT_VOLUME := buildbrain-buildroot-output
 
 .PHONY:
 setup:
@@ -138,7 +144,7 @@ lilobuild:
 liloclean:
 	make -C ./brainlilo clean
 
-.PHONY: brainux brainux-umount-special brainux-clean
+.PHONY: brainux brainux-umount-special brainux-clean buildroot_rootfs
 brainux: 
 	@if [ "$(shell uname)" != "Linux" ]; then \
 		echo "Debootstrap is only available in Linux!"; \
@@ -182,10 +188,10 @@ brainux-clean: brainux-umount-special
 	sudo rm -rf brainux
 
 buildroot_rootfs:
-	make -C buildroot brain_imx28_defconfig
-	make -C buildroot -j 12
-	sudo mkdir -p buildroot_rootfs
-	sudo tar -C ./buildroot_rootfs -xf buildroot/output/images/rootfs.tar
+	make -C buildroot O=/work/buildroot_output brain_imx28_defconfig
+	make -C buildroot O=/work/buildroot_output
+	mkdir -p buildroot_rootfs
+	tar -C ./buildroot_rootfs -xf buildroot_output/images/rootfs.tar
 
 image/sd.img: clean_work
 	./image/build_image.sh brainux sd.img 3072
@@ -214,6 +220,10 @@ datetag:
 .PHONY:
 docker-build:
 	docker build --platform linux/amd64 -t $(DOCKER_IMAGE) -f Dockerfile .
+
+.PHONY:
+docker-buildroot-build:
+	docker build --platform linux/amd64 -t $(BUILDROOT_DOCKER_IMAGE) -f Dockerfile.buildroot .
 
 .PHONY:
 docker-uboot:
@@ -249,3 +259,105 @@ docker-volume-create:
 .PHONY:
 docker-volume-rm:
 	docker volume rm $(ROOTFS_VOLUME) 2>/dev/null || true
+
+.PHONY:
+docker-buildroot-rootfs: docker-buildroot-volume-rm docker-buildroot-volume-create docker-buildroot-output-volume-create
+	docker run --rm --platform linux/amd64 --privileged \
+		-v $(BUILDROOT_OUTPUT_VOLUME):/work/buildroot_output \
+		-v $(BUILDROOT_VOLUME):/work/buildroot_rootfs \
+		-v "$$PWD":/work -w /work $(BUILDROOT_DOCKER_IMAGE) \
+		bash -lc "make buildroot_rootfs"
+
+.PHONY:
+docker-buildroot-menuconfig:
+	docker run --rm -it --platform linux/amd64 \
+		-v "$$PWD":/work -w /work $(BUILDROOT_DOCKER_IMAGE) \
+		bash -lc "rm -rf buildroot/output/build/buildroot-config && make -C buildroot brain_imx28_defconfig && make -C buildroot menuconfig"
+
+# Run after docker-buildroot-menuconfig to persist customisations.
+.PHONY:
+docker-buildroot-savedefconfig:
+	docker run --rm --platform linux/amd64 \
+		-v "$$PWD":/work -w /work $(BUILDROOT_DOCKER_IMAGE) \
+		bash -lc "rm -rf buildroot/output/build/buildroot-config && make -C buildroot savedefconfig BR2_DEFCONFIG=configs/brain_imx28_defconfig"
+
+.PHONY:
+docker-buildroot-sd-image:
+	docker run --rm --platform linux/amd64 --privileged \
+		-v $(BUILDROOT_VOLUME):/work/buildroot_rootfs \
+		-v "$$PWD":/work -w /work $(DOCKER_IMAGE) \
+		bash -lc "make -C nkbin_maker clean all && make IMG_BUILD_JOBS=1 image/sd_buildroot.img"
+
+# Fast rootfs-only update: replace only the ext4 partition (p2) in an existing
+# sd_buildroot.img without rebuilding U-Boot (saves ~35 min per iteration).
+# Requires image/sd_buildroot.img to already exist from a prior full build.
+# Workflow for overlay-only changes:
+#   1. Edit files under os-buildroot/override/
+#   2. make docker-buildroot-rootfs        (~1 min)
+#   3. make docker-buildroot-patch-image   (~1 min)
+#   4. Flash image/sd_buildroot.img
+.PHONY:
+docker-buildroot-patch-image:
+	docker run --rm --platform linux/amd64 --privileged \
+		-v $(BUILDROOT_VOLUME):/work/buildroot_rootfs \
+		-v "$$PWD":/work -w /work $(DOCKER_IMAGE) \
+		bash -lc "set -e; \
+		  KPARTX_OUTPUT=\$$(kpartx -av image/sd_buildroot.img); \
+		  echo \"\$${KPARTX_OUTPUT}\"; \
+		  LONAME=\$$(echo \"\$${KPARTX_OUTPUT}\" | sed -n 's/^add map \(loop[0-9]\+\)p2.*/\1/p' | head -1); \
+		  if [ -z \"\$${LONAME}\" ]; then echo 'Failed to detect loop device from kpartx output'; exit 1; fi; \
+		  mkdir -p /mnt/brainp2; \
+		  mount /dev/mapper/\$${LONAME}p2 /mnt/brainp2; \
+		  echo 'Wiping old rootfs...'; \
+		  rm -rf /mnt/brainp2/*; \
+		  echo 'Copying new rootfs...'; \
+		  cp -a buildroot_rootfs/. /mnt/brainp2/; \
+		  sync; \
+		  umount /mnt/brainp2; \
+		  kpartx -d image/sd_buildroot.img; \
+		  echo 'Done. Rootfs partition updated.'"
+
+# Fast kernel-only update: replace only boot partition (p1) kernel artifacts
+# in an existing sd_buildroot.img, without rebuilding rootfs or repacking image.
+# Requires image/sd_buildroot.img to already exist.
+# Workflow for kernel-only changes:
+#   1. make docker-kernel
+#   2. make docker-buildroot-patch-kernel-image
+#   3. Flash image/sd_buildroot.img
+.PHONY:
+docker-buildroot-patch-kernel-image:
+	docker run --rm --platform linux/amd64 --privileged \
+		-v "$$PWD":/work -w /work $(DOCKER_IMAGE) \
+		bash -lc "set -e; \
+		  KPARTX_OUTPUT=\$$(kpartx -av image/sd_buildroot.img); \
+		  echo \"\$${KPARTX_OUTPUT}\"; \
+		  LONAME=\$$(echo \"\$${KPARTX_OUTPUT}\" | sed -n 's/^add map \(loop[0-9]\+\)p1.*/\1/p' | head -1); \
+		  if [ -z \"\$${LONAME}\" ]; then echo 'Failed to detect loop device from kpartx output'; exit 1; fi; \
+		  mkdir -p /mnt/brainp1; \
+		  mount -o utf8=true /dev/mapper/\$${LONAME}p1 /mnt/brainp1; \
+		  echo 'Updating kernel artifacts on boot partition...'; \
+		  cp -f linux-brain/arch/arm/boot/zImage /mnt/brainp1/; \
+		  cp -f linux-brain/arch/arm/boot/dts/imx28-pw*.dtb /mnt/brainp1/; \
+		  sync; \
+		  umount /mnt/brainp1; \
+		  kpartx -d image/sd_buildroot.img; \
+		  echo 'Done. Kernel artifacts updated.'"
+
+.PHONY:
+docker-buildroot-full: docker-kernel docker-buildroot-rootfs docker-buildroot-sd-image
+
+.PHONY:
+docker-buildroot-volume-create:
+	docker volume create $(BUILDROOT_VOLUME)
+
+.PHONY:
+docker-buildroot-volume-rm:
+	docker volume rm $(BUILDROOT_VOLUME) 2>/dev/null || true
+
+.PHONY:
+docker-buildroot-output-volume-create:
+	docker volume create $(BUILDROOT_OUTPUT_VOLUME)
+
+.PHONY:
+docker-buildroot-output-volume-rm:
+	docker volume rm $(BUILDROOT_OUTPUT_VOLUME) 2>/dev/null || true
