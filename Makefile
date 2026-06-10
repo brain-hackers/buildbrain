@@ -5,6 +5,9 @@ LINUX_CROSS=$(shell ./tools/getcross linux)
 ROOTFS_CROSS=$(shell ./tools/getcross rootfs)
 export ARCH=arm
 
+DOCKER_IMAGE := buildbrain-builder:local
+ROOTFS_VOLUME := buildbrain-brainux-rootfs
+
 .PHONY:
 setup:
 	@echo "Updating submodules"
@@ -135,25 +138,37 @@ lilobuild:
 liloclean:
 	make -C ./brainlilo clean
 
-brainux:
+.PHONY: brainux brainux-umount-special brainux-clean
+brainux: 
 	@if [ "$(shell uname)" != "Linux" ]; then \
 		echo "Debootstrap is only available in Linux!"; \
 		exit 1; \
 	fi
 	mkdir -p brainux
-	sudo mkdir -p brainux/proc brainux/sys
-	sudo mount -t proc none $(shell pwd)/brainux/proc
-	sudo mount --rbind /sys $(shell pwd)/brainux/sys
-	
 	@if [ "$(CI)" = "true" ]; then \
 		echo "I'm in CI and debootstrap without cache."; \
 		sudo debootstrap --arch=$(ROOTFS_CROSS) --foreign trixie brainux/; \
 	else \
 		sudo debootstrap --arch=$(ROOTFS_CROSS) --foreign trixie brainux/ http://localhost:65432/debian/; \
 	fi
+
+	# Keep the mounting commands AFTER the first stage of debootstrap, because
+	# debootstrap's cleanup code/trap tries to clean up the target directory
+	# (`rm -rf /work/brainux/proc`) and fails because proc virtual files can't be removed.
+	sudo mkdir -p brainux/proc brainux/sys
+	sudo mount -t proc none $(shell pwd)/brainux/proc
+	sudo mount --rbind /sys $(shell pwd)/brainux/sys
+
 	sudo cp /usr/bin/qemu-arm-static brainux/usr/bin/
 	sudo cp ./os-brainux/setup_brainux.sh brainux/
 	sudo ./os-brainux/override-pre.sh ./os-brainux/override ./brainux
+	# Register qemu-arm-static binfmt handler if not already present.
+	sudo bash -c 'mount binfmt_misc -t binfmt_misc /proc/sys/fs/binfmt_misc 2>/dev/null; test -e /proc/sys/fs/binfmt_misc/qemu-arm || echo ":qemu-arm:M::\x7fELF\x01\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x28\x00:\xff\xff\xff\xff\xff\xff\xff\x00\xff\xff\xff\xff\xff\xff\xff\xff\xfe\xff\xff\xff:/usr/bin/qemu-arm-static:F" > /proc/sys/fs/binfmt_misc/register'
+	# Allow qemu-arm-static to reserve the guest address space at low virtual
+	# addresses (0x1000).  On Linux hosts vm.mmap_min_addr defaults to 65536
+	# which blocks the reservation, causing armel binaries like sqv (apt's
+	# OpenPGP verifier) to fail.  This requires --privileged in Docker.
+	sudo sh -c 'echo 0 > /proc/sys/vm/mmap_min_addr'
 	sudo -E chroot brainux /setup_brainux.sh
 	sudo rm brainux/setup_brainux.sh
 	sudo ./os-brainux/override.sh ./os-brainux/override ./brainux
@@ -195,3 +210,42 @@ aptcache:
 .PHONY:
 datetag:
 	git tag $(shell ./tools/version)
+
+.PHONY:
+docker-build:
+	docker build --platform linux/amd64 -t $(DOCKER_IMAGE) -f Dockerfile .
+
+.PHONY:
+docker-uboot:
+	docker run --rm --platform linux/amd64 -v "$$PWD":/work -w /work $(DOCKER_IMAGE) \
+		bash -lc "make udefconfig-sh1 && make ubuild"
+
+.PHONY:
+docker-kernel:
+	docker run --rm --platform linux/amd64 -v "$$PWD":/work -w /work $(DOCKER_IMAGE) \
+		bash -lc "make lclean; make ldefconfig && make lbuild"
+
+.PHONY:
+docker-rootfs: docker-volume-rm docker-volume-create
+	docker run --rm --platform linux/amd64 --privileged -e CI=true \
+		-v $(ROOTFS_VOLUME):/work/brainux \
+		-v "$$PWD":/work -w /work $(DOCKER_IMAGE) \
+		bash -lc "make brainux"
+
+.PHONY:
+docker-sd-image:
+	docker run --rm --platform linux/amd64 --privileged \
+		-v $(ROOTFS_VOLUME):/work/brainux \
+		-v "$$PWD":/work -w /work $(DOCKER_IMAGE) \
+		bash -lc "make -C nkbin_maker clean all && make IMG_BUILD_JOBS=1 image/sd.img"
+
+.PHONY:
+docker-sd-image-full: docker-kernel docker-rootfs docker-sd-image
+
+.PHONY:
+docker-volume-create:
+	docker volume create $(ROOTFS_VOLUME)
+
+.PHONY:
+docker-volume-rm:
+	docker volume rm $(ROOTFS_VOLUME) 2>/dev/null || true

@@ -57,12 +57,9 @@ echo "brain" > /etc/hostname
 
 # curl, ca-certificates: downloads the GPG key from packagecloud
 # gnupg, debian-archive-keyring: packagecloud verification dependency
+# apt-transport-https: needed before we can add the HTTPS packagecloud source
 DEBIAN_FRONTEND=noninteractive \
-    apt install -y curl ca-certificates gnupg debian-archive-keyring
-
-# apt-transport-https can be installed after debian-archive-keyring being installed
-DEBIAN_FRONTEND=noninteractive \
-    apt install -y apt-transport-https
+    apt install -y curl ca-certificates gnupg debian-archive-keyring apt-transport-https
 
 # Install GPG key and packagecloud repository config
 mkdir -p /etc/apt/keyrings
@@ -102,7 +99,7 @@ DEBIAN_FRONTEND=noninteractive \
 cd /
 git clone --recurse-submodules -b master-24f017e https://github.com/brain-hackers/ly.git
 cd ly
-make
+make -j$(nproc)
 make install
 make installsystemd
 cd /
