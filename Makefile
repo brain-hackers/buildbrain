@@ -10,8 +10,7 @@ ROOTFS_VOLUME := buildbrain-brainux-rootfs
 # Separate, leaner image for Buildroot.  Based on debian:bookworm (GCC 12)
 # which is compatible with the 2023.05-era Buildroot fork without any patches.
 BUILDROOT_DOCKER_IMAGE := buildbrain-buildroot:local
-ROOTFS_VOLUME     := buildbrain-brainux-rootfs
-BUILDROOT_VOLUME  := buildbrain-buildroot-rootfs
+BUILDROOT_VOLUME := buildbrain-buildroot-rootfs
 BUILDROOT_OUTPUT_VOLUME := buildbrain-buildroot-output
 
 .PHONY:
