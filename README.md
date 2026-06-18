@@ -184,7 +184,9 @@ You can build everything in Docker instead of preparing native Linux cross toolc
 
 For macOS, run in **stages** and use a **named volume** for the rootfs.
 
-> [!NOTE] Why a named volume for the rootfs?
+> [!NOTE]
+> **Why a named volume for the rootfs?**
+> 
 > macOS APFS (the host filesystem behind Docker bind mounts) cannot create device
 > files (`mknod`), may strip `setuid` bits, and does not faithfully preserve all
 > Linux filesystem attributes.  If the Debian rootfs is stored on APFS the result
