@@ -287,61 +287,6 @@ docker-buildroot-sd-image:
 		-v "$$PWD":/work -w /work $(DOCKER_IMAGE) \
 		bash -lc "make -C nkbin_maker clean all && make IMG_BUILD_JOBS=1 image/sd_buildroot.img"
 
-# Fast rootfs-only update: replace only the ext4 partition (p2) in an existing
-# sd_buildroot.img without rebuilding U-Boot (saves ~35 min per iteration).
-# Requires image/sd_buildroot.img to already exist from a prior full build.
-# Workflow for overlay-only changes:
-#   1. Edit files under os-buildroot/override/
-#   2. make docker-buildroot-rootfs        (~1 min)
-#   3. make docker-buildroot-patch-image   (~1 min)
-#   4. Flash image/sd_buildroot.img
-.PHONY:
-docker-buildroot-patch-image:
-	docker run --rm --platform linux/amd64 --privileged \
-		-v $(BUILDROOT_VOLUME):/work/buildroot_rootfs \
-		-v "$$PWD":/work -w /work $(DOCKER_IMAGE) \
-		bash -lc "set -e; \
-		  KPARTX_OUTPUT=\$$(kpartx -av image/sd_buildroot.img); \
-		  echo \"\$${KPARTX_OUTPUT}\"; \
-		  LONAME=\$$(echo \"\$${KPARTX_OUTPUT}\" | sed -n 's/^add map \(loop[0-9]\+\)p2.*/\1/p' | head -1); \
-		  if [ -z \"\$${LONAME}\" ]; then echo 'Failed to detect loop device from kpartx output'; exit 1; fi; \
-		  mkdir -p /mnt/brainp2; \
-		  mount /dev/mapper/\$${LONAME}p2 /mnt/brainp2; \
-		  echo 'Wiping old rootfs...'; \
-		  rm -rf /mnt/brainp2/*; \
-		  echo 'Copying new rootfs...'; \
-		  cp -a buildroot_rootfs/. /mnt/brainp2/; \
-		  sync; \
-		  umount /mnt/brainp2; \
-		  kpartx -d image/sd_buildroot.img; \
-		  echo 'Done. Rootfs partition updated.'"
-
-# Fast kernel-only update: replace only boot partition (p1) kernel artifacts
-# in an existing sd_buildroot.img, without rebuilding rootfs or repacking image.
-# Requires image/sd_buildroot.img to already exist.
-# Workflow for kernel-only changes:
-#   1. make docker-kernel
-#   2. make docker-buildroot-patch-kernel-image
-#   3. Flash image/sd_buildroot.img
-.PHONY:
-docker-buildroot-patch-kernel-image:
-	docker run --rm --platform linux/amd64 --privileged \
-		-v "$$PWD":/work -w /work $(DOCKER_IMAGE) \
-		bash -lc "set -e; \
-		  KPARTX_OUTPUT=\$$(kpartx -av image/sd_buildroot.img); \
-		  echo \"\$${KPARTX_OUTPUT}\"; \
-		  LONAME=\$$(echo \"\$${KPARTX_OUTPUT}\" | sed -n 's/^add map \(loop[0-9]\+\)p1.*/\1/p' | head -1); \
-		  if [ -z \"\$${LONAME}\" ]; then echo 'Failed to detect loop device from kpartx output'; exit 1; fi; \
-		  mkdir -p /mnt/brainp1; \
-		  mount -o utf8=true /dev/mapper/\$${LONAME}p1 /mnt/brainp1; \
-		  echo 'Updating kernel artifacts on boot partition...'; \
-		  cp -f linux-brain/arch/arm/boot/zImage /mnt/brainp1/; \
-		  cp -f linux-brain/arch/arm/boot/dts/imx28-pw*.dtb /mnt/brainp1/; \
-		  sync; \
-		  umount /mnt/brainp1; \
-		  kpartx -d image/sd_buildroot.img; \
-		  echo 'Done. Kernel artifacts updated.'"
-
 .PHONY:
 docker-buildroot-full: docker-kernel docker-buildroot-rootfs docker-buildroot-sd-image
 
@@ -360,3 +305,52 @@ docker-buildroot-output-volume-create:
 .PHONY:
 docker-buildroot-output-volume-rm:
 	docker volume rm $(BUILDROOT_OUTPUT_VOLUME) 2>/dev/null || true
+
+# ------------ Fast partition-only updates ------------
+# Requires image/sd(_buildroot).img to already exist.
+
+# Fast rootfs-only update: replace only the ext4 partition (p2) in an existing
+# sd(_buildroot).img without rebuilding U-Boot (saves ~35 min per iteration).
+# Requires image/sd(_buildroot).img to already exist from a prior full build.
+#
+# Workflow for rootfs-only changes:
+#   1. Edit files under os-(buildroot|brainux)/override/
+#      or (in the case of Buildroot) re-configure
+#   2. make docker-(buildroot-)rootfs (~1 min)
+#   3. make docker-(buildroot-)patch-rootfs-image (~1 min)
+#   4. Flash image/sd(_buildroot).img
+
+.PHONY:
+docker-patch-rootfs-image:
+	docker run --rm --platform linux/amd64 --privileged \
+	   -v $(ROOTFS_VOLUME):/work/brainux \
+	   -v "$$PWD":/work -w /work $(DOCKER_IMAGE) \
+	   ./tools/patch_image.sh rootfs-brainux image/sd.img
+
+.PHONY:
+docker-buildroot-patch-rootfs-image:
+	docker run --rm --platform linux/amd64 --privileged \
+	   -v $(BUILDROOT_VOLUME):/work/buildroot_rootfs \
+	   -v "$$PWD":/work -w /work $(DOCKER_IMAGE) \
+	   ./tools/patch_image.sh rootfs-buildroot image/sd_buildroot.img
+
+# Fast kernel-only update: replace only boot partition (p1) kernel artifacts
+# in an existing sd(_buildroot).img, w/o rebuilding rootfs or repacking image.
+#
+# Workflow for kernel-only changes:
+#   1. Edit files under `linux-brain/`
+#   2. make docker-kernel
+#   3. make docker-(buildroot-)patch-kernel-image
+#   4. Flash image/sd(_buildroot).img
+
+.PHONY:
+docker-patch-kernel-image:
+	docker run --rm --platform linux/amd64 --privileged \
+	   -v "$$PWD":/work -w /work $(DOCKER_IMAGE) \
+	   ./tools/patch_image.sh kernel image/sd.img
+
+.PHONY:
+docker-buildroot-patch-kernel-image:
+	docker run --rm --platform linux/amd64 --privileged \
+	   -v "$$PWD":/work -w /work $(DOCKER_IMAGE) \
+	   ./tools/patch_image.sh kernel image/sd_buildroot.img

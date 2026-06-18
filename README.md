@@ -225,9 +225,8 @@ Other useful Docker recipes:
 
 - `make docker-uboot` to build U-Boot
 - `make docker-kernel` to build Linux kernel
-- `make docker-volume-create` / `make docker-volume-rm` to manage the Debian rootfs volume
-- `make docker-buildroot-volume-create` / `make docker-buildroot-volume-rm` to manage the Buildroot rootfs volume
-
+- `make docker-(buildroot-)volume-(create|rm)` to manage the Debian/Buildroot rootfs volume
+- `make docker-(buildroot-)patch-(kernel|rootfs)-image` to quickly update just one partition in `image/sd(_buildroot).img` (which must already exist)
 
 Known issues
 ----------------------------------------
