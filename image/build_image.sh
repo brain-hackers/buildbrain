@@ -75,11 +75,9 @@ EOF
 sfdisk ${IMG} < ${WORK}/part.sfdisk
 
 # Attach each partition as its own loop device using explicit offsets.
-# shellcheck source=losetup_attach.sh
-source "$(dirname "$0")/losetup_attach.sh"
-
-LOOPDEV1=$(losetup_attach --offset $((START1 * 512)) --sizelimit $((SECTORS1 * 512)) ${IMG})
-LOOPDEV2=$(losetup_attach --offset $((START2 * 512)) ${IMG})
+LOOPATTACH=$(dirname "$0")/losetup_attach.sh
+LOOPDEV1=$(${LOOPATTACH} --offset $((START1 * 512)) --sizelimit $((SECTORS1 * 512)) ${IMG})
+LOOPDEV2=$(${LOOPATTACH} --offset $((START2 * 512)) ${IMG})
 
 sudo mkfs.fat -n boot -F32 -v -I ${LOOPDEV1}
 sudo mkfs.ext4 -L rootfs ${LOOPDEV2}
