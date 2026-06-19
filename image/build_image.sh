@@ -74,15 +74,14 @@ EOF
 
 sfdisk ${IMG} < ${WORK}/part.sfdisk
 
-KPARTX_OUTPUT=$(sudo kpartx -av ${IMG})
-LOOPDEV=$(echo "${KPARTX_OUTPUT}" | sed -n 's/^add map \(loop[0-9]\+\)p1.*/\1/p' | head -n 1)
+LOOPDEV=$(sudo losetup --find --show --partscan ${IMG})
 
-sudo mkfs.fat -n boot -F32 -v -I /dev/mapper/${LOOPDEV}p1
-sudo mkfs.ext4 -L rootfs /dev/mapper/${LOOPDEV}p2
+sudo mkfs.fat -n boot -F32 -v -I ${LOOPDEV}p1
+sudo mkfs.ext4 -L rootfs ${LOOPDEV}p2
 
 mkdir -p ${WORK}/p1 ${WORK}/p2
-sudo mount -o utf8=true /dev/mapper/${LOOPDEV}p1 ${WORK}/p1
-sudo mount /dev/mapper/${LOOPDEV}p2 ${WORK}/p2
+sudo mount -o utf8=true ${LOOPDEV}p1 ${WORK}/p1
+sudo mount ${LOOPDEV}p2 ${WORK}/p2
 
 echo ${BRAINUX_VERSION:-unknown} > ${WORK}/brainux_version
 sudo cp ${WORK}/brainux_version ${WORK}/p1/
@@ -108,7 +107,7 @@ sudo cp ${WORK}/lilobin/*.bin ${WORK}/p1/loader/
 sudo cp -ra ${REPO}/${ROOTFS}/* ${WORK}/p2/
 
 sudo umount ${WORK}/p1 ${WORK}/p2
-sudo kpartx -d ${IMG}
+sudo losetup -d ${LOOPDEV}
 
 rmdir ${WORK}/p1 ${WORK}/p2
 

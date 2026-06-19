@@ -23,16 +23,14 @@ EOF
 
 sfdisk ${IMG} < ${WORK}/part.sfdisk
 
-sudo kpartx -av ${IMG}
+LOOPDEV=$(sudo losetup --find --show --partscan ${IMG})
 
-LOOPDEV=$(losetup -l | grep sd_x1.img | grep -o 'loop.')
-
-sudo mkfs.fat -F32 -v -I /dev/mapper/${LOOPDEV}p1
-sudo mkfs.ext4 /dev/mapper/${LOOPDEV}p2
+sudo mkfs.fat -F32 -v -I ${LOOPDEV}p1
+sudo mkfs.ext4 ${LOOPDEV}p2
 
 mkdir -p ${WORK}/p1 ${WORK}/p2
-sudo mount /dev/mapper/${LOOPDEV}p1 ${WORK}/p1
-sudo mount /dev/mapper/${LOOPDEV}p2 ${WORK}/p2
+sudo mount ${LOOPDEV}p1 ${WORK}/p1
+sudo mount ${LOOPDEV}p2 ${WORK}/p2
 
 sudo cp ${LINUX}/arch/arm/boot/zImage ${WORK}/p1/
 sudo cp ${LINUX}/arch/arm/boot/dts/imx7ulp-pwh*.dtb ${WORK}/p1/
@@ -46,7 +44,7 @@ sudo touch ${WORK}/p1/App/boot4u/index.din
 sudo cp -ra ${REPO}/brainux/* ${WORK}/p2/
 
 sudo umount ${WORK}/p1 ${WORK}/p2
-sudo kpartx -d ${IMG}
+sudo losetup -d ${LOOPDEV}
 
 rmdir ${WORK}/p1 ${WORK}/p2
 
