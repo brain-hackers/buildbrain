@@ -74,14 +74,18 @@ EOF
 
 sfdisk ${IMG} < ${WORK}/part.sfdisk
 
-LOOPDEV=$(sudo losetup --find --show --partscan ${IMG})
+# Attach each partition as its own loop device using explicit offsets.
+# This avoids relying on partition sub-device creation (loopNpX) which
+# requires udev and does not work reliably in Docker containers.
+LOOPDEV1=$(sudo losetup --find --show --offset $((START1 * 512)) --sizelimit $((SECTORS1 * 512)) ${IMG})
+LOOPDEV2=$(sudo losetup --find --show --offset $((START2 * 512)) ${IMG})
 
-sudo mkfs.fat -n boot -F32 -v -I ${LOOPDEV}p1
-sudo mkfs.ext4 -L rootfs ${LOOPDEV}p2
+sudo mkfs.fat -n boot -F32 -v -I ${LOOPDEV1}
+sudo mkfs.ext4 -L rootfs ${LOOPDEV2}
 
 mkdir -p ${WORK}/p1 ${WORK}/p2
-sudo mount -o utf8=true ${LOOPDEV}p1 ${WORK}/p1
-sudo mount ${LOOPDEV}p2 ${WORK}/p2
+sudo mount -o utf8=true ${LOOPDEV1} ${WORK}/p1
+sudo mount ${LOOPDEV2} ${WORK}/p2
 
 echo ${BRAINUX_VERSION:-unknown} > ${WORK}/brainux_version
 sudo cp ${WORK}/brainux_version ${WORK}/p1/
@@ -107,7 +111,7 @@ sudo cp ${WORK}/lilobin/*.bin ${WORK}/p1/loader/
 sudo cp -ra ${REPO}/${ROOTFS}/* ${WORK}/p2/
 
 sudo umount ${WORK}/p1 ${WORK}/p2
-sudo losetup -d ${LOOPDEV}
+sudo losetup -d ${LOOPDEV1} ${LOOPDEV2}
 
 rmdir ${WORK}/p1 ${WORK}/p2
 
