@@ -26,8 +26,21 @@ sfdisk ${IMG} < ${WORK}/part.sfdisk
 # Attach each partition as its own loop device using explicit offsets.
 # This avoids relying on partition sub-device creation (loopNpX) which
 # requires udev and does not work reliably in Docker containers.
-LOOPDEV1=$(sudo losetup --find --show --offset $((START1 * 512)) --sizelimit $((SECTORS1 * 512)) ${IMG})
-LOOPDEV2=$(sudo losetup --find --show --offset $((START2 * 512)) ${IMG})
+#
+# Docker Desktop only pre-populates a small set of /dev/loopN nodes, so if
+# losetup picks a higher number the device node may be absent.  Create it
+# with mknod (major 7) before attaching.
+losetup_attach() {
+    local DEV
+    DEV=$(sudo losetup -f)
+    local NUM=${DEV#/dev/loop}
+    [ -e "${DEV}" ] || sudo mknod -m 0660 "${DEV}" b 7 "${NUM}"
+    sudo losetup "${DEV}" "$@"
+    echo "${DEV}"
+}
+
+LOOPDEV1=$(losetup_attach --offset $((START1 * 512)) --sizelimit $((SECTORS1 * 512)) ${IMG})
+LOOPDEV2=$(losetup_attach --offset $((START2 * 512)) ${IMG})
 
 sudo mkfs.fat -F32 -v -I ${LOOPDEV1}
 sudo mkfs.ext4 ${LOOPDEV2}
