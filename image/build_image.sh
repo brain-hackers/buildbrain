@@ -105,7 +105,7 @@ sudo cp ${REPO}/image/exeopener.exe "${LILO}/AppMain.exe"
 sudo mkdir -p ${WORK}/p1/loader
 sudo cp ${WORK}/lilobin/*.bin ${WORK}/p1/loader/
 
-sudo cp -ra ${REPO}/${ROOTFS}/* ${WORK}/p2/
+sudo cp -a "${REPO}/${ROOTFS}/." "${WORK}/p2/"
 
 sudo umount ${WORK}/p1 ${WORK}/p2
 sudo kpartx -d ${IMG}

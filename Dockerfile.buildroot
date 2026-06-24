@@ -1,0 +1,36 @@
+ARG BUILDROOT_PLATFORM=linux/amd64
+# TODO: Update to Trixie once we catch up with upstream Buildroot.
+FROM --platform=${BUILDROOT_PLATFORM} debian:bookworm
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+    bc \
+    bison \
+    build-essential \
+    bzip2 \
+    ca-certificates \
+    cmake \
+    cpio \
+    diffutils \
+    file \
+    flex \
+    gawk \
+    git \
+    libncurses-dev \
+    libssl-dev \
+    make \
+    patch \
+    perl \
+    python3 \
+    python3-dev \
+    rsync \
+    unzip \
+    wget \
+    xz-utils \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /work
+
+CMD ["bash"]
